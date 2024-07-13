@@ -97,6 +97,17 @@ void MemoryView_ImGuiWidget()
     ImGui::End();
 }
 
+ImVec4 GetValueColor(ImVec4& colT, ImVec4 colD, uint16_t value)
+{
+    if (value == 0) return colD;
+    if (value == 0xffff) return colT;
+    return ImVec4(
+        colD.x + (colT.x - colD.x) * value / 65535.0f,
+        colD.y + (colT.y - colD.y) * value / 65535.0f,
+        colD.z + (colT.z - colD.x) * value / 65535.0f,
+        1.0f);
+}
+
 const char* ADDRESS_LINE_OCT_WORDS = "  addr   0      2      4      6      10     12     14     16     ";
 const char* ADDRESS_LINE_OCT_BYTES = "  addr   0   1   2   3   4   5   6   7   10  11  12  13  14  15  16  17   ";
 const char* ADDRESS_LINE_HEX_WORDS = " addr  0    2    4    6    8    a    c    e    ";
@@ -125,6 +136,9 @@ void MemoryView_ImGuiDraw()
     ImVec2 spaceSize = ImGui::CalcTextSize(" ");
     float space = spaceSize.x;
 
+    ImVec4 colT = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+    ImVec4 colD = ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled);
+
     ImGuiListClipper clipper;
     clipper.Begin(65536 / 16, ImGui::GetTextLineHeightWithSpacing());
     while (clipper.Step())
@@ -134,9 +148,9 @@ void MemoryView_ImGuiDraw()
             uint16_t address = line * 16; //m_wBaseAddress;
             uint16_t lineAddress = address;
             if (m_NumeralMode == MEMMODENUM_OCT)
-                ImGui::TextDisabled("%06o", address);
+                ImGui::Text("%06o", address);
             else
-                ImGui::TextDisabled("%04x", address);
+                ImGui::Text("%04x", address);
             ImGui::SameLine(0.0f, space * 2.0f);
 
             TCHAR wchars[17] = { 0 };
@@ -156,23 +170,25 @@ void MemoryView_ImGuiDraw()
                     //else
                     //    ::SetTextColor(hdc, (wChanged != 0) ? colorChanged : colorText);
 
+                    ImVec4 col = GetValueColor(colT, colD, word);
+
                     if (m_NumeralMode == MEMMODENUM_OCT && !m_okMemoryByteMode)
                     {
-                        ImGui::Text("%06o", word); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%06o", word); ImGui::SameLine(0.0f, space);
                     }
                     else if (m_NumeralMode == MEMMODENUM_OCT && m_okMemoryByteMode)
                     {
-                        ImGui::Text("%03o", (word & 0xff)); ImGui::SameLine(0.0f, space);
-                        ImGui::Text("%03o", (word >> 8)); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%03o", (word & 0xff)); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%03o", (word >> 8)); ImGui::SameLine(0.0f, space);
                     }
                     else if (m_NumeralMode == MEMMODENUM_HEX && !m_okMemoryByteMode)
                     {
-                        ImGui::Text("%04x", word); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%04x", word); ImGui::SameLine(0.0f, space);
                     }
                     else if (m_NumeralMode == MEMMODENUM_HEX && m_okMemoryByteMode)
                     {
-                        ImGui::Text("%02x", (word & 0xff)); ImGui::SameLine(0.0f, space);
-                        ImGui::Text("%02x", (word >> 8)); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%02x", (word & 0xff)); ImGui::SameLine(0.0f, space);
+                        ImGui::TextColored(col, "%02x", (word >> 8)); ImGui::SameLine(0.0f, space);
                     }
                 }
                 else  // !okValid
@@ -202,11 +218,11 @@ void MemoryView_ImGuiDraw()
                     if (addrtype == ADDRTYPE_IO)
                     {
                         //::SetTextColor(hdc, colorMemoryIO);
-                        ImGui::TextUnformatted("IO");
+                        ImGui::TextDisabled("IO");
                     }
                     else
                     {
-                        ImGui::TextUnformatted("NA");
+                        ImGui::TextDisabled("NA");
                     }
                     ImGui::SameLine(0.0f, 0.0f);
                     ImGui::TextUnformatted(posttext);

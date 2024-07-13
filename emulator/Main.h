@@ -168,6 +168,7 @@ void ScreenView_ScanKeyboard();
 void ProcessorView_ImGuiWidget();
 void StackView_ImGuiWidget();
 void Breakpoints_ImGuiWidget();
+void MemorySchema_ImGuiWidget();
 
 // DisasmView
 void DisasmView_ImGuiWidget();

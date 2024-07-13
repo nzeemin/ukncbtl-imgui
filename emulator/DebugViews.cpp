@@ -6,6 +6,7 @@
 
 
 //////////////////////////////////////////////////////////////////////
+// Processor
 
 
 void ProcessorView_ImGuiWidget()
@@ -67,6 +68,7 @@ void ProcessorView_ImGuiWidget()
 
 
 //////////////////////////////////////////////////////////////////////
+// Stack
 
 
 void StackView_ImGuiWidget()
@@ -108,6 +110,7 @@ void StackView_ImGuiWidget()
 
 
 //////////////////////////////////////////////////////////////////////
+// Breakpoints
 
 
 void Breakpoints_ImGuiWidget()
@@ -151,6 +154,130 @@ void Breakpoints_ImGuiWidget()
         else
             Emulator_RemovePPUBreakpoint(addressBreakpointClick);
     }
+
+    ImGui::End();
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// Memory Schema
+
+
+void MemorySchema_ImGuiWidget()
+{
+    CProcessor* pProc = g_okDebugCpuPpu ? g_pBoard->GetCPU() : g_pBoard->GetPPU();
+
+    const float schemah = 13.4f;  // Schema height in text lines
+    const float schemah8 = schemah / 8.0f; // Height of 1/8 of the schema
+    const float schemaw = 10.5f;  // Schema width in font character sizes
+
+    ImGui::Begin("Memory Schema");
+
+    ImVec2 spaceSize = ImGui::CalcTextSize(" ");
+    float space = spaceSize.x;
+    float lineh = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2 pos0 = ImGui::GetCursorPos();
+    ImVec2 spos0 = ImGui::GetCursorScreenPos();
+    float ypos4 = pos0.y + lineh * 13.0f;  // Y for last line of text
+    float xpost = pos0.x + space * 9.0f;  // X pos for signs on memory blocks
+    float xpospcsp = pos0.x + space * (6.67f + schemaw + 1.0f);  // X pos for PC and SP signs
+
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 p1(spos0.x + space * 6.67f, spos0.y);  // left top
+    ImVec2 p2(p1.x + space * schemaw, p1.y);  // right top
+    ImVec2 p3(p2.x, p2.y + lineh * schemah);  // right bottom
+    ImVec2 p4(p1.x, p3.y);  // left bottom
+    ImU32 col = ImGui::ColorConvertFloat4ToU32(ImVec4(0.67f, 0.67f, 0.67f, 1.0f));
+    draw_list->AddQuad(p1, p2, p3, p4, col);
+
+    for (int i = 1; i < 8; i++)
+    {
+        bool fullline = (g_okDebugCpuPpu && i >= 7) || (!g_okDebugCpuPpu && i >= 4);
+
+        float y = p4.y - lineh * i * schemah8;
+        if (fullline)
+            draw_list->AddLine({ p1.x, y }, { p2.x, y }, col);
+        else
+            draw_list->AddLine({ p1.x, y }, { p1.x + space, y }, col);
+        uint16_t addr = (uint16_t)i * 020000;
+        ImGui::SetCursorPos({ pos0.x, pos0.y + lineh * (13.4f - i * schemah8 - 0.33f) });
+        ImGui::Text("%06ho", addr);
+    }
+
+    ImGui::SetCursorPos({ pos0.x, pos0.y + lineh * 13.0f });
+    ImGui::TextUnformatted("000000");
+
+    if (g_okDebugCpuPpu)  // CPU
+    {
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 3.5f });
+        ImGui::TextUnformatted("RAM12");
+
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 7.5f });
+        if (pProc->IsHaltMode())
+            ImGui::TextUnformatted("RAM12");
+        else
+            ImGui::TextUnformatted("I/O");
+    }
+    else  // PPU
+    {
+        const CMemoryController* pMemCtl = pProc->GetMemoryController();
+        uint16_t value177054 = pMemCtl->GetPortView(0177054);
+
+        float y = p1.y + lineh * 0.2f;
+        draw_list->AddLine({ p1.x, y }, { p2.x, y }, col);
+        ImGui::SetCursorPos({ pos0.x, pos0.y });
+        ImGui::TextUnformatted("177000");
+
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 2.0f });
+        ImGui::TextUnformatted("RAM0");
+
+        // 100000-117777 - Window block 0
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 4.5f });
+        if ((value177054 & 16) != 0)  // Port 177054 bit 4 set => RAM selected
+            ImGui::TextUnformatted("RAM0");
+        else if ((value177054 & 1) != 0)  // ROM selected
+            ImGui::TextUnformatted("ROM");
+        else if ((value177054 & 14) != 0)  // ROM cartridge selected
+        {
+            int slot = ((value177054 & 8) == 0) ? 1 : 2;
+            int bank = (value177054 & 6) >> 1;
+            const size_t buffersize = 10;
+            ImGui::Text("Cart %d/%d", slot, bank);
+        }
+
+        // 120000-137777 - Window block 1
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 5.5f });
+        if ((value177054 & 32) != 0)  // Port 177054 bit 5 set => RAM selected
+            ImGui::TextUnformatted("RAM0");
+        else
+            ImGui::TextUnformatted("ROM");
+
+        // 140000-157777 - Window block 2
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 6.5f });
+        if ((value177054 & 64) != 0)  // Port 177054 bit 6 set => RAM selected
+            ImGui::TextUnformatted("RAM0");
+        else
+            ImGui::TextUnformatted("ROM");
+
+        // 160000-176777 - Window block 3
+        ImGui::SetCursorPos({ xpost, ypos4 - lineh * schemah8 * 7.5f });
+        if ((value177054 & 128) != 0)  // Port 177054 bit 7 set => RAM selected
+            ImGui::TextUnformatted("RAM0");
+        else
+            ImGui::TextUnformatted("ROM");
+    }
+
+    uint16_t sp = pProc->GetSP();
+    float ysp = (lineh * schemah) * sp / 65536.0f;
+    draw_list->AddLine({ p2.x, p4.y - ysp }, { p2.x + space, p4.y - ysp }, col);
+    ImGui::SetCursorPos({ xpospcsp, ypos4 - ysp });
+    ImGui::TextUnformatted("SP");
+
+    uint16_t pc = pProc->GetPC();
+    float ypc = (lineh * schemah) * pc / 65536.0f;
+    draw_list->AddLine({ p2.x, p4.y - ypc }, { p2.x + space, p4.y - ypc }, col);
+    ImGui::SetCursorPos({ xpospcsp, ypos4 - ypc });
+    ImGui::TextUnformatted("PC");
 
     ImGui::End();
 }

@@ -114,6 +114,7 @@ void ImGuiFrame()
     ProcessorView_ImGuiWidget();
     StackView_ImGuiWidget();
     Breakpoints_ImGuiWidget();
+    MemorySchema_ImGuiWidget();
     DisasmView_ImGuiWidget();
     MemoryView_ImGuiWidget();
 

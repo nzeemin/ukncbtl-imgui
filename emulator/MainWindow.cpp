@@ -9,7 +9,9 @@
 //////////////////////////////////////////////////////////////////////
 
 
+#ifdef _DEBUG
 bool show_demo_window = false;
+#endif
 bool open_settings_popup = false;
 bool open_about_popup = false;
 
@@ -173,7 +175,8 @@ void ImGuiSettingsPopup()
     {
         //
         static int style_idx = Settings_GetColorScheme();
-        if (ImGui::Combo("Color Scheme", &style_idx, "ImGui Dark\0ImGui Light\0ImGui Classic\0"))
+        const char* color_scheme_list = "ImGui Dark\0ImGui Light\0ImGui Classic\0";
+        if (ImGui::Combo("Color Scheme", &style_idx, color_scheme_list))
         {
             MainWindow_SetColorSheme(style_idx);
             Settings_SetColorScheme(style_idx);
@@ -205,10 +208,11 @@ void ImGuiAboutPopup()
 
 void ControlView_ImGuiWidget()
 {
+#ifdef _DEBUG
     // Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);//TODO
-
+#endif
     ImGui::Begin("Control");
 
     if (!g_okEmulatorRunning)
@@ -341,9 +345,6 @@ void ControlView_ImGuiWidget()
                     MainWindow_DoHardImageSelect(cartslot);
             }
         }
-        //ImGui::TextDisabled("2:"); ImGui::SameLine();
-        //ImGui::SmallButton(ICON_FA_ELLIPSIS_H "###CartSelect2");
-        //ImGui::TextUnformatted(ICON_FA_HDD ":");
     }
 
     //ImGui::SeparatorText("");
@@ -361,34 +362,11 @@ void ControlView_ImGuiWidget()
     //ImGui::SliderInt("Volume", &volume, 0, 100);
     ImGui::EndDisabled();
 
-    //ImGui::SeparatorText("Debug");
-    //ImGui::BeginDisabled(!g_okDebugCpuPpu);
-    //if (ImGui::Button(" PPU "))
-    //{
-    //    g_okDebugCpuPpu = false;
-    //    Settings_SetDebugCpuPpu(FALSE);
-    //}
-    //ImGui::EndDisabled();
-    //ImGui::SameLine(0.0f, 0.0f);
-    //ImGui::BeginDisabled(g_okDebugCpuPpu);
-    //if (ImGui::Button(" CPU "))
-    //{
-    //    g_okDebugCpuPpu = true;
-    //    Settings_SetDebugCpuPpu(TRUE);
-    //}
-    //ImGui::EndDisabled();
-
-    //ImGui::BeginDisabled(g_okEmulatorRunning);
-    //if (ImGui::Button("Step"))
-    //    ConsoleView_StepInto();
-    //ImGui::SameLine();
-    //if (ImGui::Button("Step Over"))
-    //    ConsoleView_StepOver();
-    //ImGui::EndDisabled();
-
     ImGui::SeparatorText("ImGui");
     ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
+#ifdef _DEBUG
     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+#endif
     ImGui::End();
 }
 
