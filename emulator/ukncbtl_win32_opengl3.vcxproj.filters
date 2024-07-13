@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{a82cba23-9de0-45c2-b1e3-2eb1666702de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_win32.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugViews.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="DisasmView.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Board.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Disasm.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Floppy.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Hard.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Memory.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\Processor.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="emubase\SoundAY.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Emulator.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundGen.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="util\BitmapFile.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="util\WavPcmFile.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleView.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryView.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenView.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="emubase\Board.h" />
+    <ClInclude Include="emubase\Defines.h" />
+    <ClInclude Include="emubase\Emubase.h" />
+    <ClInclude Include="emubase\Memory.h" />
+    <ClInclude Include="emubase\Processor.h" />
+    <ClInclude Include="Emulator.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="SoundGen.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="util\BitmapFile.h" />
+    <ClInclude Include="util\WavPcmFile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="imgui\imgui.natvis" />
+  </ItemGroup>
+</Project>
