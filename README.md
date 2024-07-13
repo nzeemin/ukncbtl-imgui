@@ -1,4 +1,4 @@
-# ukncbtl
+# ukncbtl-imgui
 UKNCBTL — UKNC Back to Life! emulator, Win32 / ImGui version.
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
