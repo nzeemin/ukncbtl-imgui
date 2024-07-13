@@ -15,6 +15,7 @@ ipch
 trace.log
 printer.log
 /emulator/Version.h
+/emulator/imgui.ini
 UKNCBTL.APS
 *.dsk
 *.img

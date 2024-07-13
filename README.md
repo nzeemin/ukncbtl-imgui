@@ -5,6 +5,7 @@ UKNCBTL — UKNC Back to Life! emulator, Win32 / ImGui version.
 
 ![GitHub all releases](https://img.shields.io/github/downloads/nzeemin/ukncbtl-imgui/total)
 
+![](docs/ukncbtl-imgui.jpg)
 
 ### На русском / In Russian
 UKNCBTL — UKNC Back to Life! — это эмулятор компьютера Электроника МС-0511 (УКНЦ).
