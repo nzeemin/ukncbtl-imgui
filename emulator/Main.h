@@ -179,6 +179,7 @@ void ConsoleView_ImGuiWidget();
 void ConsoleView_Print(const char* message);
 void ConsoleView_StepInto();
 void ConsoleView_StepOver();
+void ConsoleView_DeleteBreakpoint(uint16_t address);
 void ConsoleView_DeleteAllBreakpoints();
 
 // MemoryView

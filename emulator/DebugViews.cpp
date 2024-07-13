@@ -94,9 +94,14 @@ void StackView_ImGuiWidget()
     for (int index = 0; index < 14; index++)
     {
         if (address == current)
-            ImGui::TextDisabled("SP>");
+            ImGui::TextDisabled(" SP ");
         else
-            ImGui::TextUnformatted("   ");
+        {
+            if (index < 6)
+                ImGui::TextDisabled("-%02o ", 12 - index * 2);
+            else
+                ImGui::TextDisabled("+%02o ", index * 2 - 12);
+        }
         ImGui::SameLine(0.0f, 0.0f);
         ImGui::Text("%06o ", address);
         ImGui::SameLine();
@@ -112,10 +117,14 @@ void StackView_ImGuiWidget()
 //////////////////////////////////////////////////////////////////////
 // Breakpoints
 
+uint16_t m_BreakpointsContextAddress = 0177777;
 
 void Breakpoints_ImGuiWidget()
 {
     ImGui::Begin("Breakpoints");
+
+    ImVec2 linesMin = ImGui::GetCursorScreenPos();
+    ImVec2 linesMax;
 
     uint16_t addressBreakpointClick = 0177777;
 
@@ -125,9 +134,10 @@ void Breakpoints_ImGuiWidget()
         while (*pbps != 0177777)
         {
             ImVec2 lineMin = ImGui::GetCursorScreenPos();
-            //ImVec2 lineMax = ImVec2(lineMin.x + ImGui::GetWindowWidth(), lineMin.y + ImGui::GetTextLineHeightWithSpacing());
-            ImVec2 lineDeleteMax = ImVec2(lineMin.x + 24.0f, lineMin.y + ImGui::GetTextLineHeightWithSpacing());
-
+            ImVec2 lineMax = ImVec2(lineMin.x + ImGui::GetWindowWidth(), lineMin.y + ImGui::GetTextLineHeightWithSpacing());
+            linesMax = lineMax;
+            ImVec2 lineDeleteMax = ImVec2(lineMin.x + 24.0f, lineMax.y);
+            bool isHovered = ImGui::IsMouseHoveringRect(lineMin, lineMax);
             bool isDeleteHovered = ImGui::IsMouseHoveringRect(lineMin, lineDeleteMax);
 
             if (isDeleteHovered)
@@ -140,7 +150,12 @@ void Breakpoints_ImGuiWidget()
             uint16_t address = *pbps;
             ImGui::Text("%06ho", address);
 
-            if (isDeleteHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+            if (isHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))  // Context menu
+            {
+                m_BreakpointsContextAddress = address;
+                ImGui::OpenPopup("Breakpoints_context");
+            }
+            if (isDeleteHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))  // Click on Delete sign
                 addressBreakpointClick = address;
 
             pbps++;
@@ -148,11 +163,26 @@ void Breakpoints_ImGuiWidget()
     }
 
     if (addressBreakpointClick != 0177777)
+        ConsoleView_DeleteBreakpoint(addressBreakpointClick);
+
+    bool linesHovered = ImGui::IsMouseHoveringRect(linesMin, linesMax);
+    if (!linesHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))  // Context menu in empty area
     {
-        if (g_okDebugCpuPpu)
-            Emulator_RemoveCPUBreakpoint(addressBreakpointClick);
-        else
-            Emulator_RemovePPUBreakpoint(addressBreakpointClick);
+        m_BreakpointsContextAddress = 0177777;
+        ImGui::OpenPopup("Breakpoints_context");
+    }
+
+    if (ImGui::BeginPopupContextItem("Breakpoints_context"))
+    {
+        if (m_BreakpointsContextAddress != 0177777)
+        {
+            if (ImGui::Selectable("Remove"))
+                ConsoleView_DeleteBreakpoint(m_BreakpointsContextAddress);
+        }
+        if (ImGui::Selectable("Remove All"))
+            ConsoleView_DeleteAllBreakpoints();
+
+        ImGui::EndPopup();
     }
 
     ImGui::End();

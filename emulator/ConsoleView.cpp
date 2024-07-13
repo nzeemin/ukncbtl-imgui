@@ -155,6 +155,13 @@ void ConsoleView_StepOver()
     // Execute command
     ConsoleView_DoConsoleCommand();
 }
+void ConsoleView_DeleteBreakpoint(uint16_t address)
+{
+    // Put command to console prompt
+    sprintf(m_ConsoleInputBuf, "bc%06ho", address);
+    // Execute command
+    ConsoleView_DoConsoleCommand();
+}
 void ConsoleView_DeleteAllBreakpoints()
 {
     // Put command to console prompt
