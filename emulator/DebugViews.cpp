@@ -118,6 +118,7 @@ void StackView_ImGuiWidget()
 // Breakpoints
 
 uint16_t m_BreakpointsContextAddress = 0177777;
+char m_BreakpointBuf[7] = { 0 };
 
 void Breakpoints_ImGuiWidget()
 {
@@ -129,6 +130,7 @@ void Breakpoints_ImGuiWidget()
     uint16_t addressBreakpointClick = 0177777;
 
     const uint16_t* pbps = g_okDebugCpuPpu ? Emulator_GetCPUBreakpointList() : Emulator_GetPPUBreakpointList();
+    int bpcount = 0;
     if (pbps != nullptr && *pbps != 0177777)
     {
         while (*pbps != 0177777)
@@ -143,10 +145,10 @@ void Breakpoints_ImGuiWidget()
             if (isDeleteHovered)
             {
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), ICON_FA_MINUS_CIRCLE);
-                ImGui::SameLine(0.0f, 0.0f);
+                ImGui::SameLine();
             }
 
-            ImGui::SetCursorPosX(24.0f);
+            ImGui::SetCursorPosX(26.0f);
             uint16_t address = *pbps;
             ImGui::Text("%06ho", address);
 
@@ -158,6 +160,7 @@ void Breakpoints_ImGuiWidget()
             if (isDeleteHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left))  // Click on Delete sign
                 addressBreakpointClick = address;
 
+            bpcount++;
             pbps++;
         }
     }
@@ -166,7 +169,7 @@ void Breakpoints_ImGuiWidget()
         ConsoleView_DeleteBreakpoint(addressBreakpointClick);
 
     bool linesHovered = ImGui::IsMouseHoveringRect(linesMin, linesMax);
-    if (!linesHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))  // Context menu in empty area
+    if (ImGui::IsWindowHovered() && !linesHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))  // Context menu in empty area
     {
         m_BreakpointsContextAddress = 0177777;
         ImGui::OpenPopup("Breakpoints_context");
@@ -183,6 +186,33 @@ void Breakpoints_ImGuiWidget()
             ConsoleView_DeleteAllBreakpoints();
 
         ImGui::EndPopup();
+    }
+
+    if (bpcount < MAX_BREAKPOINTCOUNT)
+    {
+        ImGui::TextDisabled(ICON_FA_PLUS_CIRCLE);
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(26.0f);
+        ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll;
+        uint16_t address;
+        bool addressParsed = false;
+        if (*m_BreakpointBuf != 0)
+            addressParsed = ParseOctalValue(m_BreakpointBuf, &address);
+        ImGui::PushItemWidth(ImGui::CalcTextSize("000000 ").x);
+        if (ImGui::InputText("###BreakpointNew", m_BreakpointBuf, IM_ARRAYSIZE(m_BreakpointBuf), input_text_flags))
+        {
+            if (addressParsed)
+            {
+                ConsoleView_AddBreakpoint(address);
+                *m_BreakpointBuf = 0;
+            }
+        }
+        if (*m_BreakpointBuf != 0 && !addressParsed)
+        {
+            ImGui::SameLine();
+            ImGui::Text(ICON_FA_EXCLAMATION_TRIANGLE);
+        }
+        ImGui::PopItemWidth();
     }
 
     ImGui::End();

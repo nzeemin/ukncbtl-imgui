@@ -202,5 +202,11 @@ void ScreenView_ScanKeyboard()
     }
 }
 
+// External key event - e.g. from KeyboardView
+void ScreenView_KeyEvent(BYTE keyscan, BOOL pressed)
+{
+    ScreenView_PutKeyEventToQueue(MAKEWORD(keyscan, pressed ? 128 : 0));
+}
+
 
 //////////////////////////////////////////////////////////////////////

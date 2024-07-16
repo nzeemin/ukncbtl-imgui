@@ -48,13 +48,6 @@ void ConsoleView_ImGuiWidget()
     if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), ImGuiChildFlags_None,
         ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
-        if (ImGui::BeginPopupContextWindow())
-        {
-            if (ImGui::Selectable("Clear"))
-                ConsoleView_ClearConsole();
-            ImGui::EndPopup();
-        }
-
         //TODO: ImGuiListClipper
         for (std::string item : m_ConsoleItems)
         {
@@ -65,6 +58,9 @@ void ConsoleView_ImGuiWidget()
                 ImGui::TextUnformatted(item.c_str());
         }
     }
+
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+        ImGui::OpenPopup("Console_context");
 
     // Keep up at the bottom of the scroll region if we were already at the bottom at the beginning of the frame.
     // Using a scrollbar or mouse-wheel will take away from the bottom edge.
@@ -90,6 +86,13 @@ void ConsoleView_ImGuiWidget()
         m_ReturnFocus = true;
     }
     ImGui::EndDisabled();
+
+    if (ImGui::BeginPopupContextItem("Console_context"))
+    {
+        if (ImGui::Selectable("Clear"))
+            ConsoleView_ClearConsole();
+        ImGui::EndPopup();
+    }
 
     ImGui::End();
 }
@@ -152,6 +155,13 @@ void ConsoleView_StepOver()
 {
     // Put command to console prompt
     strcpy(m_ConsoleInputBuf, "so");
+    // Execute command
+    ConsoleView_DoConsoleCommand();
+}
+void ConsoleView_AddBreakpoint(uint16_t address)
+{
+    // Put command to console prompt
+    sprintf(m_ConsoleInputBuf, "b%06ho", address);
     // Execute command
     ConsoleView_DoConsoleCommand();
 }

@@ -71,19 +71,14 @@ const int UKNC_SCREEN_WIDTH = 640;
 const int UKNC_SCREEN_HEIGHT = 288;
 
 
-void GetFontWidthAndHeight(HDC hdc, int* pWidth, int* pHeight);
 void PrintOctalValue(TCHAR* buffer, WORD value);
 void PrintHexValue(TCHAR* buffer, WORD value);
 void PrintBinaryValue(TCHAR* buffer, WORD value);
-BOOL ParseOctalValue(LPCTSTR text, WORD* pValue);
-void DrawOctalValue(HDC hdc, int x, int y, WORD value);
-void DrawHexValue(HDC hdc, int x, int y, WORD value);
-void DrawBinaryValue(HDC hdc, int x, int y, WORD value);
+bool ParseOctalValue(const char* text, uint16_t* pValue);
 
 void CopyTextToClipboard(LPCTSTR text);
 
 TCHAR Translate_KOI8R(BYTE ch);
-void DrawCharKOI8R(HDC hdc, int x, int y, BYTE ch);
 
 BOOL ShowSaveDialog(HWND hwndOwner, LPCTSTR strTitle, LPCTSTR strFilter, LPCTSTR strDefExt, TCHAR* bufFileName);
 BOOL ShowOpenDialog(HWND hwndOwner, LPCTSTR strTitle, LPCTSTR strFilter, TCHAR* bufFileName);

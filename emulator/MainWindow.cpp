@@ -108,23 +108,46 @@ void ImGuiMainMenu()
         {
             if (!g_okEmulatorRunning)
             {
-                if (ImGui::MenuItem("Run"))
+                if (ImGui::MenuItem(ICON_FA_PLAY " Run"))
                     Emulator_Start();
             }
             else
             {
-                if (ImGui::MenuItem("Stop"))
+                if (ImGui::MenuItem(ICON_FA_PAUSE " Stop"))
                     Emulator_Stop();
             }
-            if (ImGui::MenuItem("Reset"))
+            if (ImGui::MenuItem(ICON_FA_REDO " Reset"))
                 Emulator_Reset();
-
 
             bool autostart = Settings_GetAutostart();
             if (ImGui::MenuItem("Autostart", nullptr, &autostart))
             {
                 Settings_SetAutostart(!Settings_GetAutostart());
             }
+
+            ImGui::Separator();
+
+            WORD speed = Settings_GetRealSpeed();
+            bool checked25 = speed == 0x7ffe;
+            ImGui::BeginDisabled(checked25);
+            if (ImGui::MenuItem("Speed 25%", nullptr, &checked25)) MainWindow_DoEmulatorSpeed(0x7ffe);
+            ImGui::EndDisabled();
+            bool checked50 = speed == 0x7fff;
+            ImGui::BeginDisabled(checked50);
+            if (ImGui::MenuItem("Speed 50%", nullptr, &checked50)) MainWindow_DoEmulatorSpeed(0x7fff);
+            ImGui::EndDisabled();
+            bool checked100 = speed == 1;
+            ImGui::BeginDisabled(checked100);
+            if (ImGui::MenuItem("Speed 100%", nullptr, &checked100)) MainWindow_DoEmulatorSpeed(1);
+            ImGui::EndDisabled();
+            bool checked200 = speed == 200;
+            ImGui::BeginDisabled(checked200);
+            if (ImGui::MenuItem("Speed 200%", nullptr, &checked200)) MainWindow_DoEmulatorSpeed(2);
+            ImGui::EndDisabled();
+            bool checkedMax = speed == 0;
+            ImGui::BeginDisabled(checkedMax);
+            if (ImGui::MenuItem("Speed MAX", nullptr, &checkedMax)) MainWindow_DoEmulatorSpeed(0);
+            ImGui::EndDisabled();
 
             ImGui::EndMenu();
         }

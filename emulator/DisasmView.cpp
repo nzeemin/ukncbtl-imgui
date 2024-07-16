@@ -106,7 +106,7 @@ void Disasm_DrawForRunningEmulator()
 
 void DisasmView_DrawJump(ImDrawList* draw_list, ImVec2 lineMin, int delta, float cyLine)
 {
-    ImU32 col = ImGui::ColorConvertFloat4ToU32(ImVec4(0.67f, 0.67f, 0.67f, 0.67f));
+    ImU32 col = ImGui::ColorConvertFloat4ToU32(ImVec4(0.5f, 0.7f, 1.0f, 0.67f));
 
     int dist = abs(delta);
     if (dist < 2) dist = 2;
@@ -115,14 +115,25 @@ void DisasmView_DrawJump(ImDrawList* draw_list, ImVec2 lineMin, int delta, float
     float yTo = lineMin.y + delta * cyLine;
 
     ImVec2 p1(lineMin.x + cyLine * 0.2f, lineMin.y + cyLine / 2.0f);  // point from
-    ImVec2 p2(lineMin.x + dist * cyLine * 0.4f, p1.y);
-    ImVec2 p3(lineMin.x + dist * cyLine * 1.2f, yTo);
+    ImVec2 p2(lineMin.x + dist * cyLine * 0.32f, p1.y);
+    ImVec2 p3(lineMin.x + dist * cyLine * 0.9f, yTo);
     ImVec2 p4(lineMin.x, yTo - cyLine * 0.1f);  // point to
-    ImVec2 p5(lineMin.x + cyLine * 0.6f, yTo - cyLine * 0.15f);  // arrow
-    ImVec2 p6(lineMin.x + cyLine * 0.6f, yTo + cyLine * 0.15f);  // arrow
     draw_list->AddBezierCubic(p1, p2, p3, p4, col, 1.0);
-    draw_list->AddLine(p4, p5, col);
-    draw_list->AddLine(p4, p6, col);
+
+    // Arrow sides
+    ImVec2 p5(lineMin.x + cyLine * 0.8f, yTo);  // upper side
+    ImVec2 p6(lineMin.x + cyLine * 0.8f, yTo);  // down side
+    if (delta > 0)  // jump down
+    {
+        p5.y -= cyLine * 0.27f;
+        p6.y += cyLine * 0.01f;
+    }
+    else  // jump up
+    {
+        p5.y -= cyLine * 0.10f;
+        p6.y += cyLine * 0.15f;
+    }
+    draw_list->AddTriangleFilled(p4, p5, p6, col);
 }
 
 // В режиме останова делаем подробный дизасм

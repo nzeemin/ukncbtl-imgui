@@ -74,11 +74,6 @@ static void Hook_Renderer_SwapBuffers(ImGuiViewport* viewport, void*)
 }
 
 
-void ScreenView_KeyEvent(BYTE keyscan, BOOL pressed)
-{
-    //TODO
-}
-
 void ImGuiFrame()
 {
     ImGui::NewFrame();
@@ -149,7 +144,7 @@ int main(int, char**)
     Emulator_SetSoundAY(Settings_GetSoundAY() != 0);
     Emulator_SetSoundCovox(Settings_GetSoundCovox() != 0);
 
-    ScreenView_Init();
+    ScreenView_Init();  // Creates m_bits
     ConsoleView_Init();
 
     //TODO: Restore main window settings
@@ -212,7 +207,9 @@ int main(int, char**)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_BGRA_EXT, UKNC_SCREEN_WIDTH, UKNC_SCREEN_HEIGHT, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_bits);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, UKNC_SCREEN_WIDTH, UKNC_SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_bits);
+    // Unbind texture
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     g_ScreenTextureID = (void*)(intptr_t) screen_texture;
 
@@ -290,13 +287,12 @@ int main(int, char**)
                 Emulator_Stop();
             }
 
+            //TODO: Move to ScreenView
             IM_ASSERT(m_bits != nullptr);
             Emulator_PrepareScreenRGB32(m_bits, ScreenView_StandardGRBColors);
 
             glBindTexture(GL_TEXTURE_2D, screen_texture);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, UKNC_SCREEN_WIDTH, UKNC_SCREEN_HEIGHT, GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_bits);
-            // Unbind texture
-            glBindTexture(GL_TEXTURE_2D, 0);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, UKNC_SCREEN_WIDTH, UKNC_SCREEN_HEIGHT, GL_RGBA, GL_UNSIGNED_BYTE, m_bits);
         }
 
         // Start the Dear ImGui frame
@@ -361,6 +357,8 @@ int main(int, char**)
     Emulator_Done();
     Settings_Done();
     ScreenView_Done();
+
+    glDeleteTextures(1, &screen_texture);
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();

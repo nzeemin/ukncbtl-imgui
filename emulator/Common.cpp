@@ -179,16 +179,6 @@ void DebugLogFormat(LPCTSTR pszFormat, ...)
 const TCHAR* REGISTER_NAME[] = { _T("R0"), _T("R1"), _T("R2"), _T("R3"), _T("R4"), _T("R5"), _T("SP"), _T("PC") };
 
 
-void GetFontWidthAndHeight(HDC hdc, int* pWidth, int* pHeight)
-{
-    TEXTMETRIC tm;
-    GetTextMetrics(hdc, &tm);
-    if (pWidth != NULL)
-        *pWidth = tm.tmAveCharWidth;
-    if (pHeight != NULL)
-        *pHeight = tm.tmHeight;
-}
-
 // Print octal 16-bit value to buffer
 // buffer size at least 7 characters
 void PrintOctalValue(TCHAR* buffer, WORD value)
@@ -226,41 +216,22 @@ void PrintBinaryValue(TCHAR* buffer, WORD value)
 }
 
 // Parse octal value from text
-BOOL ParseOctalValue(LPCTSTR text, WORD* pValue)
+bool ParseOctalValue(const char* text, uint16_t* pValue)
 {
     WORD value = 0;
-    TCHAR* pChar = (TCHAR*) text;
+    char* pChar = (char*) text;
     for (int p = 0; ; p++)
     {
-        if (p > 6) return FALSE;
-        TCHAR ch = *pChar;  pChar++;
+        if (p > 6) return false;
+        char ch = *pChar;  pChar++;
         if (ch == 0) break;
-        if (ch < _T('0') || ch > _T('7')) return FALSE;
+        if (ch < '0' || ch > '7') return false;
         value = (value << 3);
-        TCHAR digit = ch - _T('0');
+        char digit = ch - '0';
         value += digit;
     }
     *pValue = value;
-    return TRUE;
-}
-
-void DrawOctalValue(HDC hdc, int x, int y, WORD value)
-{
-    TCHAR buffer[7];
-    PrintOctalValue(buffer, value);
-    TextOut(hdc, x, y, buffer, (int)_tcsnlen(buffer, 6));
-}
-void DrawHexValue(HDC hdc, int x, int y, WORD value)
-{
-    TCHAR buffer[7];
-    PrintHexValue(buffer, value);
-    TextOut(hdc, x, y, buffer, (int)_tcsnlen(buffer, 6));
-}
-void DrawBinaryValue(HDC hdc, int x, int y, WORD value)
-{
-    TCHAR buffer[17];
-    PrintBinaryValue(buffer, value);
-    TextOut(hdc, x, y, buffer, 16);
+    return true;
 }
 
 void CopyTextToClipboard(LPCTSTR text)
