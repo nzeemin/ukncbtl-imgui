@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "imgui/imgui_internal.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 
@@ -28,6 +29,8 @@ HINSTANCE g_hInst = NULL; // current instance
 HWND g_hwnd = NULL;
 
 LPCTSTR g_szTitle = _T("UKNCBTL");
+
+bool g_okDefaultLayout = true;
 
 double g_dFramesPercent = 0.0;
 
@@ -100,6 +103,31 @@ void ImGuiFrame()
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
+    if (g_okDefaultLayout)  // This is first run without any layout, so let's define default one
+    {
+        g_okDefaultLayout = false;
+
+        ImGui::DockBuilderRemoveNode(dockspace_id);
+        ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags /*| ImGuiDockNodeFlags_DockSpace*/);
+        ImGuiID dockid_left = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.125f, nullptr, &dockspace_id);
+        ImGuiID dockid_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.55f, nullptr, &dockspace_id);
+        ImGuiID dockid_right_up = ImGui::DockBuilderSplitNode(dockid_right, ImGuiDir_Up, 0.33f, nullptr, &dockid_right);
+        ImGuiID dockid_right_down = ImGui::DockBuilderSplitNode(dockid_right, ImGuiDir_Down, 0.5f, nullptr, &dockid_right);
+        ImGuiID dockid_right_up2 = ImGui::DockBuilderSplitNode(dockid_right_up, ImGuiDir_Right, 0.58f, nullptr, &dockid_right_up);
+        ImGuiID dockid_down = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.5f, nullptr, &dockspace_id);
+        ImGuiID dockid_center = dockspace_id;
+
+        ImGui::DockBuilderDockWindow("Control", dockid_left);
+        ImGui::DockBuilderDockWindow("Video", dockid_center);
+        ImGui::DockBuilderDockWindow("Console", dockid_down);
+        ImGui::DockBuilderDockWindow("###Processor", dockid_right_up);
+        ImGui::DockBuilderDockWindow("Stack", dockid_right_up2);
+        ImGui::DockBuilderDockWindow("Breakpoints", dockid_right_up2);
+        ImGui::DockBuilderDockWindow("Memory Schema", dockid_right_up2);
+        ImGui::DockBuilderDockWindow("Disasm", dockid_right);
+        ImGui::DockBuilderDockWindow("Memory", dockid_right_down);
+    }
+
     ControlView_ImGuiWidget();
 
     ScreenView_ImGuiWidget();
@@ -116,6 +144,17 @@ void ImGuiFrame()
     ImGuiMainMenu();
 
     ImGui::End();  // Root
+}
+
+bool IsFileExist(const char * fileName)
+{
+    FILE* fp = fopen(fileName, "r");
+    if (fp)
+    {
+        fclose(fp);
+        return true;
+    }
+    return errno != ENOENT;
 }
 
 // Main code
@@ -178,9 +217,11 @@ int main(int, char**)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     // Enable Multi-Viewport / Platform Windows
+
+    g_okDefaultLayout = !IsFileExist(io.IniFilename);
 
     // Setup Dear ImGui style
     MainWindow_SetColorSheme(Settings_GetColorScheme());
