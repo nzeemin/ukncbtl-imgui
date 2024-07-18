@@ -36,6 +36,8 @@ double g_dFramesPercent = 0.0;
 
 bool g_okDebugCpuPpu = false;
 
+bool g_okVsyncSwitchable = false;
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -157,6 +159,27 @@ bool IsFileExist(const char * fileName)
     return errno != ENOENT;
 }
 
+void SetVSync()
+{
+    bool sync = Settings_GetScreenVsync();
+
+    typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALPROC)(int);
+    PFNWGLSWAPINTERVALPROC wglSwapIntervalEXT = nullptr;
+
+    const char* extensions = (char*)glGetString(GL_EXTENSIONS);
+
+    wglSwapIntervalEXT = (PFNWGLSWAPINTERVALPROC)wglGetProcAddress("wglSwapIntervalEXT");
+
+    if (wglSwapIntervalEXT == nullptr)
+    {
+        g_okVsyncSwitchable = false;
+        return;
+    }
+
+    wglSwapIntervalEXT(sync);
+    g_okVsyncSwitchable = true;
+}
+
 // Main code
 #ifdef _WIN32
 int WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nShowCmd*/)
@@ -253,6 +276,8 @@ int main(int, char**)
     glBindTexture(GL_TEXTURE_2D, 0);
 
     g_ScreenTextureID = (void*)(intptr_t) screen_texture;
+
+    SetVSync();  // Set initial Vsync flag value
 
     // Win32+GL needs specific hooks for viewport, as there are specific things needed to tie Win32 and GL api.
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

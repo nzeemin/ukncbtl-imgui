@@ -325,6 +325,8 @@ void Settings_SetCartridgeFilePath(int slot, LPCTSTR sFilePath)
 
 SETTINGS_GETSET_DWORD(ScreenViewMode, _T("ScreenViewMode"), int, 1);
 
+SETTINGS_GETSET_DWORD(ScreenVsync, _T("ScreenVsync"), BOOL, FALSE);
+
 SETTINGS_GETSET_DWORD(ScreenHeightMode, _T("ScreenHeightMode"), int, 0);
 
 SETTINGS_GETSET_DWORD(ScreenshotMode, _T("ScreenshotMode"), int, 1);

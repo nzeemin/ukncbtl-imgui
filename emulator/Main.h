@@ -26,6 +26,8 @@ extern double g_dFramesPercent;
 
 extern bool g_okDebugCpuPpu;
 
+extern bool g_okVsyncSwitchable;
+
 extern uint32_t* m_bits;  // Screen buffer
 extern ImTextureID g_ScreenTextureID;
 
@@ -79,6 +81,8 @@ void Settings_SetHardFilePath(int slot, LPCTSTR sFilePath);
 void Settings_GetHardFilePath(int slot, LPTSTR buffer);
 void Settings_SetScreenViewMode(int mode);
 int  Settings_GetScreenViewMode();
+BOOL Settings_GetScreenVsync();
+void Settings_SetScreenVsync(BOOL flag);
 void Settings_SetScreenshotMode(int mode);
 int  Settings_GetScreenshotMode();
 BOOL Settings_GetDebugCpuPpu();
@@ -149,6 +153,8 @@ void Settings_SetColor(ColorIndices colorIndex, COLORREF color);
 
 //extern bool Option_ShowHelp;
 extern int Option_AutoBoot;
+
+extern void SetVSync();
 
 
 //////////////////////////////////////////////////////////////////////

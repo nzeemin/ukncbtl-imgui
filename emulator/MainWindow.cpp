@@ -420,6 +420,16 @@ void ControlView_ImGuiWidget()
 
     ImGui::SeparatorText("ImGui");
     ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
+    if (g_okVsyncSwitchable)
+    {
+        bool vsync = Settings_GetScreenVsync();
+        if (ImGui::Checkbox("VSync", &vsync))
+        {
+            Settings_SetScreenVsync(vsync);
+            SetVSync();
+        }
+    }
+
 #ifdef _DEBUG
     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 #endif
