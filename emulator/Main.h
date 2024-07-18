@@ -77,6 +77,8 @@ void Settings_SetCartridgeFilePath(int slot, LPCTSTR sFilePath);
 void Settings_GetCartridgeFilePath(int slot, LPTSTR buffer);
 void Settings_SetHardFilePath(int slot, LPCTSTR sFilePath);
 void Settings_GetHardFilePath(int slot, LPTSTR buffer);
+void Settings_SetScreenViewMode(int mode);
+int  Settings_GetScreenViewMode();
 void Settings_SetScreenshotMode(int mode);
 int  Settings_GetScreenshotMode();
 BOOL Settings_GetDebugCpuPpu();
@@ -159,6 +161,14 @@ void ImGuiMainMenu();
 void ControlView_ImGuiWidget();
 
 // ScreenView
+
+enum ScreenViewMode
+{
+    RGBScreen = 0,
+    GRBScreen = 1,
+    GrayScreen = 2,
+};
+
 void ScreenView_Init();
 void ScreenView_Done();
 void ScreenView_ImGuiWidget();

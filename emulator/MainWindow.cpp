@@ -23,6 +23,7 @@ void ImGuiSettingsPopup();
 void ImGuiAboutPopup();
 
 void MainWindow_DoEmulatorSpeed(WORD speed);
+void MainWindow_DoScreenViewMode(ScreenViewMode mode);
 void MainWindow_DoFloppyImageSelect(int slot);
 void MainWindow_DoFloppyImageEject(int slot);
 void MainWindow_DoCartridgeSelect(int slot);
@@ -102,6 +103,20 @@ void ImGuiMainMenu()
         }
         if (ImGui::BeginMenu("View"))
         {
+            int viewmode = Settings_GetScreenViewMode();
+            bool checkedRGB = viewmode == 0;
+            ImGui::BeginDisabled(checkedRGB);
+            if (ImGui::MenuItem("RGB Screen", nullptr, &checkedRGB)) MainWindow_DoScreenViewMode(RGBScreen);
+            ImGui::EndDisabled();
+            bool checkedGRB = viewmode == 1;
+            ImGui::BeginDisabled(checkedGRB);
+            if (ImGui::MenuItem("GRB Screen", nullptr, &checkedGRB)) MainWindow_DoScreenViewMode(GRBScreen);
+            ImGui::EndDisabled();
+            bool checkedGray = viewmode == 2;
+            ImGui::BeginDisabled(checkedGray);
+            if (ImGui::MenuItem("Grayscale Screen", nullptr, &checkedGray)) MainWindow_DoScreenViewMode(GrayScreen);
+            ImGui::EndDisabled();
+
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Emulator"))
@@ -292,6 +307,24 @@ void ControlView_ImGuiWidget()
     if (ImGui::Button("Max")) MainWindow_DoEmulatorSpeed(0);
     ImGui::EndDisabled();
 
+    ImGui::SeparatorText("Video");
+    int viewmode = Settings_GetScreenViewMode();
+    ImGui::BeginDisabled(viewmode == 0);
+    if (ImGui::Button("RGB")) MainWindow_DoScreenViewMode(RGBScreen);
+    ImGui::EndDisabled();
+    ImGui::SameLine(0.0f, 0.0f);
+    ImGui::BeginDisabled(viewmode == 1);
+    if (ImGui::Button("GRB")) MainWindow_DoScreenViewMode(GRBScreen);
+    ImGui::EndDisabled();
+    ImGui::SameLine(0.0f, 0.0f);
+    ImGui::BeginDisabled(viewmode == 2);
+    if (ImGui::Button("Gray")) MainWindow_DoScreenViewMode(GrayScreen);
+    ImGui::EndDisabled();
+
+    //ImGui::TextDisabled("X:   ");
+    //ImGui::SameLine();
+    //ImGui::TextDisabled("Y:   ");
+
     ImGui::SeparatorText("Floppies");
     for (int floppyslot = 0; floppyslot < 4; floppyslot++)
     {
@@ -397,6 +430,11 @@ void MainWindow_DoEmulatorSpeed(WORD speed)
 {
     Settings_SetRealSpeed(speed);
     Emulator_SetSpeed(speed);
+}
+
+void MainWindow_DoScreenViewMode(ScreenViewMode mode)
+{
+    Settings_SetScreenViewMode(mode);
 }
 
 void MainWindow_DoFloppyImageSelect(int slot)
