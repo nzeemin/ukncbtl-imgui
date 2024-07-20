@@ -321,9 +321,20 @@ void ControlView_ImGuiWidget()
     if (ImGui::Button("Gray")) MainWindow_DoScreenViewMode(GrayScreen);
     ImGui::EndDisabled();
 
-    //ImGui::TextDisabled("X:   ");
-    //ImGui::SameLine();
-    //ImGui::TextDisabled("Y:   ");
+    ImVec2 vMouse = ScreenView_GetMousePos();
+    ImGui::TextDisabled("X:");
+    ImGui::SameLine();
+    if (vMouse.x != vMouse.x)
+        ImGui::TextUnformatted("   ");
+    else
+        ImGui::Text("%3.f", floor(vMouse.x));
+    ImGui::SameLine();
+    ImGui::TextDisabled("Y:");
+    ImGui::SameLine();
+    if (vMouse.y != vMouse.y)
+        ImGui::TextUnformatted("   ");
+    else
+        ImGui::Text("%3.f", floor(vMouse.y));
 
     ImGui::SeparatorText("Floppies");
     for (int floppyslot = 0; floppyslot < 4; floppyslot++)

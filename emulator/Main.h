@@ -178,6 +178,7 @@ enum ScreenViewMode
 void ScreenView_Init();
 void ScreenView_Done();
 void ScreenView_ImGuiWidget();
+ImVec2 ScreenView_GetMousePos();
 void ScreenView_ScanKeyboard();
 
 // DebugViews

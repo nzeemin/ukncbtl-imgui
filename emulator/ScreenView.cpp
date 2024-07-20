@@ -22,6 +22,8 @@ int m_ScreenKeyQueueCount = 0;
 void ScreenView_PutKeyEventToQueue(WORD keyevent);
 WORD ScreenView_GetKeyEventFromQueue();
 
+ImVec2 m_ScreenMouse = ImVec2(NAN, NAN);
+
 BOOL bEnter = FALSE;
 BOOL bNumpadEnter = FALSE;
 BOOL bEntPressed = FALSE;
@@ -51,12 +53,32 @@ void ScreenView_ImGuiWidget()
     ImVec2 size(vMax.x - vMin.x, vMax.y - vMin.y);
     ImGui::Image(g_ScreenTextureID, size);
 
+    ImVec2 vMousePos = ImGui::GetMousePos();
+    ImVec2 vWindowPos = ImGui::GetWindowPos();
+    vMousePos.x -= vWindowPos.x;  vMousePos.y -= vWindowPos.y;  // screen coords to window coords
+    float mx = NAN, my = NAN;
+    if (vMousePos.x >= vMin.x && vMousePos.x < vMax.x &&
+        vMousePos.y >= vMin.y && vMousePos.y < vMax.y)
+    {
+        mx = (vMousePos.x - vMin.x) / size.x * UKNC_SCREEN_WIDTH;
+        my = (vMousePos.y - vMin.y) / size.y * UKNC_SCREEN_HEIGHT;
+    }
+    m_ScreenMouse.x = mx;  m_ScreenMouse.y = my;
+
     if (ImGui::IsWindowFocused() && ImGui::IsItemHovered())
+    {
+        //TODO: Draw crosshair
         ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
+    }
 
     m_okScreenViewFocused = ImGui::IsWindowFocused();
 
     ImGui::End();
+}
+
+ImVec2 ScreenView_GetMousePos()
+{
+    return m_ScreenMouse;
 }
 
 void ScreenView_PutKeyEventToQueue(WORD keyevent)
