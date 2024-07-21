@@ -180,6 +180,9 @@ void ScreenView_Done();
 void ScreenView_ImGuiWidget();
 ImVec2 ScreenView_GetMousePos();
 void ScreenView_ScanKeyboard();
+const uint32_t* ScreenView_GetPalette();
+bool ScreenView_SaveScreenshot(const char* pFileName, int screenshotMode);
+const char* ScreenView_GetScreenshotModeName(int screenshotMode);
 
 // DebugViews
 void ProcessorView_ImGuiWidget();

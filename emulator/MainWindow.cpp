@@ -30,6 +30,9 @@ void MainWindow_DoCartridgeSelect(int slot);
 void MainWindow_DoCartridgeEject(int slot);
 void MainWindow_DoHardImageSelect(int slot);
 void MainWindow_DoHardImageEject(int slot);
+void MainWindow_DoEmulatorSound(bool flag);
+void MainWindow_EmulatorSoundVolume(uint16_t volume);
+void MainWindow_DoFileScreenshot();
 
 
 //////////////////////////////////////////////////////////////////////
@@ -93,11 +96,13 @@ void ImGuiMainMenu()
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("Screenshot"))
+                MainWindow_DoFileScreenshot();
+
+            ImGui::Separator();
             if (ImGui::MenuItem("Settings"))
                 open_settings_popup = true;
 
-            //ImGui::MenuItem("Screenshot");
-            //ImGui::Separator();
             //ImGui::MenuItem("Quit");//TODO
             ImGui::EndMenu();
         }
@@ -155,7 +160,7 @@ void ImGuiMainMenu()
             ImGui::BeginDisabled(checked100);
             if (ImGui::MenuItem("Speed 100%", nullptr, &checked100)) MainWindow_DoEmulatorSpeed(1);
             ImGui::EndDisabled();
-            bool checked200 = speed == 200;
+            bool checked200 = speed == 2;
             ImGui::BeginDisabled(checked200);
             if (ImGui::MenuItem("Speed 200%", nullptr, &checked200)) MainWindow_DoEmulatorSpeed(2);
             ImGui::EndDisabled();
@@ -211,7 +216,8 @@ void ImGuiSettingsPopup()
 {
     if (ImGui::BeginPopupModal("settings_popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        //
+        ImGui::SeparatorText("Colors");
+
         static int style_idx = Settings_GetColorScheme();
         const char* color_scheme_list = "ImGui Dark\0ImGui Light\0ImGui Classic\0";
         if (ImGui::Combo("Color Scheme", &style_idx, color_scheme_list))
@@ -220,8 +226,32 @@ void ImGuiSettingsPopup()
             Settings_SetColorScheme(style_idx);
         }
 
+        ImGui::SeparatorText("Screenshots");
+
+        int selectedmode = Settings_GetScreenshotMode();
+        const char* selmodename = ScreenView_GetScreenshotModeName(selectedmode);
+        if (ImGui::BeginCombo("Screenshot Mode", selmodename))
+        {
+            int mode = 0;
+            for (;;)
+            {
+                const char* modename = ScreenView_GetScreenshotModeName(mode);
+                if (modename == nullptr)
+                    break;
+
+                bool selected = mode == selectedmode;
+                if (ImGui::Selectable(modename, &selected))
+                    Settings_SetScreenshotMode(mode);
+
+                mode++;
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::Spacing();
         if (ImGui::Button("Close", ImVec2(200.0f, 0.0f)))
             ImGui::CloseCurrentPopup();
+
         ImGui::EndPopup();
     }
 }
@@ -336,6 +366,9 @@ void ControlView_ImGuiWidget()
     else
         ImGui::Text("%3.f", floor(vMouse.y));
 
+    if (ImGui::Button("Screenshot"))
+        MainWindow_DoFileScreenshot();
+
     ImGui::SeparatorText("Floppies");
     for (int floppyslot = 0; floppyslot < 4; floppyslot++)
     {
@@ -414,20 +447,18 @@ void ControlView_ImGuiWidget()
         }
     }
 
-    //ImGui::SeparatorText("");
-    ImGui::BeginDisabled();//TODO
-    //ImGui::Button("Screenshot");
-    //ImGui::SeparatorText("");
-    //bool sound = Settings_GetSound();
-    //ImGui::Checkbox(ICON_FA_VOLUME_MUTE " Sound", &sound);
-    //if (Emulator_IsSound())
-    //{
-    //    ImGui::SameLine();
-    //    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "))");
-    //}
-    //int volume = Settings_GetSoundVolume() / 655;
-    //ImGui::SliderInt("Volume", &volume, 0, 100);
-    ImGui::EndDisabled();
+    ImGui::SeparatorText("Sound");
+    bool sound = Settings_GetSound();
+    if (ImGui::Checkbox("Sound", &sound))
+        MainWindow_DoEmulatorSound(sound);
+    if (Emulator_IsSound())
+    {
+        ImGui::SameLine();
+        ImGui::TextUnformatted(ICON_FA_VOLUME_UP);
+    }
+    int volume = Settings_GetSoundVolume() / 655;
+    if (ImGui::SliderInt("Volume", &volume, 0, 100))
+        MainWindow_EmulatorSoundVolume(volume * 655);
 
     ImGui::SeparatorText("ImGui");
     ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
@@ -442,6 +473,7 @@ void ControlView_ImGuiWidget()
     }
 
 #ifdef _DEBUG
+    ImGui::Spacing();
     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 #endif
     ImGui::End();
@@ -538,6 +570,34 @@ void MainWindow_DoHardImageEject(int slot)
 {
     g_pBoard->DetachHardImage(slot);
     Settings_SetHardFilePath(slot, NULL);
+}
+
+void MainWindow_DoEmulatorSound(bool flag)
+{
+    Settings_SetSound(flag);
+
+    Emulator_SetSound(flag);
+}
+
+void MainWindow_EmulatorSoundVolume(uint16_t volume)
+{
+    Settings_SetSoundVolume((WORD)volume);
+}
+
+void MainWindow_DoFileScreenshot()
+{
+    char bufFileName[MAX_PATH];
+    SYSTEMTIME st;
+    ::GetSystemTime(&st);
+    _snprintf(bufFileName, IM_ARRAYSIZE(bufFileName),
+        "%04d%02d%02d%02d%02d%02d%03d.png",
+        st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+
+    int screenshotMode = Settings_GetScreenshotMode();
+    if (!ScreenView_SaveScreenshot(bufFileName, screenshotMode))
+    {
+        AlertWarning(_T("Failed to save screenshot image."));
+    }
 }
 
 

@@ -353,17 +353,8 @@ int main(int, char**)
                 Emulator_Stop();
             }
 
-            //TODO: Move to ScreenView
             IM_ASSERT(m_bits != nullptr);
-            int viewmode = Settings_GetScreenViewMode();
-            const uint32_t* palette;
-            if (viewmode == RGBScreen)
-                palette = ScreenView_StandardRGBColors;
-            else if (viewmode == GrayScreen)
-                palette = ScreenView_StandardGrayColors;
-            else
-                palette = ScreenView_StandardGRBColors;
-
+            const uint32_t* palette = ScreenView_GetPalette();
             Emulator_PrepareScreenRGB32(m_bits, palette);
 
             glBindTexture(GL_TEXTURE_2D, screen_texture);

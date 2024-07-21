@@ -94,6 +94,12 @@
     <ClCompile Include="MainWindow.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="libpng\png.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="libpng\pngwrite.c">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imgui.h" />
@@ -115,6 +121,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="util\BitmapFile.h" />
     <ClInclude Include="util\WavPcmFile.h" />
+    <ClInclude Include="libpng\png.h" />
+    <ClInclude Include="libpng\pngconf.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="imgui\imgui.natvis" />

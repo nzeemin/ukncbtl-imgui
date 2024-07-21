@@ -18,7 +18,9 @@ UKNCBTL — UKNC Back to Life! — это эмулятор компьютера 
 #### Лицензии
 * Код эмулятора: GNU LGPL v3
 * ImGui: MIT
-* Font Awesome 5 Free: SIL OFL 1.1 License on fonts, CC BY 4.0 License on icons, see https://fontawesome.com/license/free
+* libpng: PNG Reference Library License version 2, см. https://github.com/pnggroup/libpng/blob/libpng16/LICENSE
+* zlib: см. https://github.com/madler/zlib/blob/master/LICENSE
+* Font Awesome 5 Free: SIL OFL 1.1 License на шрифт, CC BY 4.0 License на иконки, см. https://fontawesome.com/license/free
 
 #### Благодарности
 
