@@ -10,7 +10,11 @@ UKNCBTL. If not, see <http://www.gnu.org/licenses/>. */
 
 #pragma once
 
-//#include "res/Resource.h"
+#ifdef _DEBUG
+#define APP_VERSION_STRING "DEBUG"
+#else
+#include "Version.h"
+#endif
 
 //////////////////////////////////////////////////////////////////////
 
@@ -30,6 +34,14 @@ extern bool g_okVsyncSwitchable;
 
 extern uint32_t* m_bits;  // Screen buffer
 extern ImTextureID g_ScreenTextureID;
+
+// Derived colors based and calculated using the current style
+extern ImVec4 g_colorPlay;              // Play sign in Disasm window
+extern ImVec4 g_colorBreak;             // Breakpoint
+extern ImVec4 g_colorJumpLine;          // Jump arrow
+extern ImVec4 g_colorDisabledRed;       // Disabled color shifted to red
+extern ImVec4 g_colorDisabledGreen;     // Disabled color shifted to green
+extern ImVec4 g_colorDisabledBlue;      // Disabled color shifted to blue
 
 
 //////////////////////////////////////////////////////////////////////

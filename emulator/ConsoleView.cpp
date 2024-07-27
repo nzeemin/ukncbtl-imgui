@@ -35,7 +35,7 @@ void ConsoleView_DoConsoleCommand();
 
 void ConsoleView_Init()
 {
-    ConsoleView_Print("UKNCBTL emulator TODO version information.");
+    ConsoleView_Print("UKNCBTL ImGui version " APP_VERSION_STRING);
     ConsoleView_Print("Use 'h' command to show help.");
     ConsoleView_Print("");
 }

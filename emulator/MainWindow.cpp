@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "imgui/imgui_internal.h"
 #include "Main.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
@@ -14,6 +15,14 @@ bool show_demo_window = false;
 #endif
 bool open_settings_popup = false;
 bool open_about_popup = false;
+
+// Derived colors based and calculated using the current style
+ImVec4 g_colorPlay;              // Play sign in Disasm window
+ImVec4 g_colorBreak;             // Breakpoint
+ImVec4 g_colorJumpLine;          // Jump arrow
+ImVec4 g_colorDisabledRed;       // Disabled color shifted to red
+ImVec4 g_colorDisabledGreen;     // Disabled color shifted to green
+ImVec4 g_colorDisabledBlue;      // Disabled color shifted to blue
 
 
 //////////////////////////////////////////////////////////////////////
@@ -88,6 +97,14 @@ void MainWindow_SetColorSheme(int scheme)
     case 1:  ImGui::StyleColorsLight(); break;
     case 2:  ImGui::StyleColorsClassic(); break;
     }
+
+    // Calculate derived colors
+    g_colorPlay = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_Text), ImVec4(0.0f, 0.67f, 0.0f, 1.0f), 0.67f);
+    g_colorBreak = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_Text), ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 0.67f);
+    g_colorJumpLine = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_Text), ImVec4(0.5f, 0.7f, 1.0f, 0.67f), 0.67f);
+    g_colorDisabledRed = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled), ImVec4(1.0f, 0.0f, 0.0f, 1.0f), 0.33f);
+    g_colorDisabledGreen = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled), ImVec4(0.0f, 1.0f, 0.0f, 1.0f), 0.33f);
+    g_colorDisabledBlue = ImLerp(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled), ImVec4(0.0f, 0.0f, 1.0f, 1.0f), 0.33f);
 }
 
 void ImGuiMainMenu()
@@ -104,24 +121,6 @@ void ImGuiMainMenu()
                 open_settings_popup = true;
 
             //ImGui::MenuItem("Quit");//TODO
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("View"))
-        {
-            int viewmode = Settings_GetScreenViewMode();
-            bool checkedRGB = viewmode == 0;
-            ImGui::BeginDisabled(checkedRGB);
-            if (ImGui::MenuItem("RGB Screen", nullptr, &checkedRGB)) MainWindow_DoScreenViewMode(RGBScreen);
-            ImGui::EndDisabled();
-            bool checkedGRB = viewmode == 1;
-            ImGui::BeginDisabled(checkedGRB);
-            if (ImGui::MenuItem("GRB Screen", nullptr, &checkedGRB)) MainWindow_DoScreenViewMode(GRBScreen);
-            ImGui::EndDisabled();
-            bool checkedGray = viewmode == 2;
-            ImGui::BeginDisabled(checkedGray);
-            if (ImGui::MenuItem("Grayscale Screen", nullptr, &checkedGray)) MainWindow_DoScreenViewMode(GrayScreen);
-            ImGui::EndDisabled();
-
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Emulator"))
@@ -147,6 +146,12 @@ void ImGuiMainMenu()
 
             ImGui::Separator();
 
+            bool sound = Settings_GetSound();
+            if (ImGui::MenuItem("Sound", nullptr, &sound))
+                MainWindow_DoEmulatorSound(sound);
+
+            ImGui::Separator();
+
             WORD speed = Settings_GetRealSpeed();
             bool checked25 = speed == 0x7ffe;
             ImGui::BeginDisabled(checked25);
@@ -167,6 +172,101 @@ void ImGuiMainMenu()
             bool checkedMax = speed == 0;
             ImGui::BeginDisabled(checkedMax);
             if (ImGui::MenuItem("Speed MAX", nullptr, &checkedMax)) MainWindow_DoEmulatorSpeed(0);
+            ImGui::EndDisabled();
+
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Configuration"))
+        {
+            for (int floppyslot = 0; floppyslot < 4; floppyslot++)
+            {
+                char bufname[64];
+                if (g_pBoard->IsFloppyImageAttached(floppyslot))
+                {
+                    sprintf(bufname, "FDD %d: " ICON_FA_EJECT " Eject###MenuFloppyEject%d", floppyslot, floppyslot);
+                    if (ImGui::MenuItem(bufname))
+                        MainWindow_DoFloppyImageEject(floppyslot);
+                    ImGui::SameLine();
+
+                    TCHAR buffilepath[MAX_PATH];
+                    Settings_GetFloppyFilePath(floppyslot, buffilepath);
+                    LPCTSTR lpFileName = GetFileNameFromFilePath(buffilepath);
+                    ImGui::Text("%S", lpFileName);
+                }
+                else
+                {
+                    sprintf(bufname, "FDD %d: Select...###MenuFloppySelect%d", floppyslot, floppyslot);
+                    if (ImGui::MenuItem(bufname))
+                        MainWindow_DoFloppyImageSelect(floppyslot);
+                }
+            }
+
+            ImGui::Separator();
+
+            for (int cartslot = 1; cartslot <= 2; cartslot++)
+            {
+                char bufname[64];
+                if (g_pBoard->IsROMCartridgeLoaded(cartslot))
+                {
+                    sprintf(bufname, "Cart %d: " ICON_FA_EJECT " Eject###MenuCartEject%d", cartslot, cartslot);
+                    if (ImGui::MenuItem(bufname))
+                        MainWindow_DoCartridgeEject(cartslot);
+                    ImGui::SameLine();
+
+                    TCHAR buffilepath[MAX_PATH];
+                    Settings_GetCartridgeFilePath(cartslot, buffilepath);
+                    LPCTSTR lpFileName = GetFileNameFromFilePath(buffilepath);
+                    ImGui::Text("%S", lpFileName);
+                }
+                else
+                {
+                    sprintf(bufname, "Cart %d: Select...###MenuCartSelect%d", cartslot, cartslot);
+                    if (ImGui::MenuItem(bufname))
+                        MainWindow_DoCartridgeSelect(cartslot);
+                }
+                if (g_pBoard->IsROMCartridgeLoaded(cartslot))
+                {
+                    if (g_pBoard->IsHardImageAttached(cartslot))
+                    {
+                        sprintf(bufname, "  " ICON_FA_HDD " HDD: " ICON_FA_EJECT " Eject###MenuHardEject%d", cartslot);
+                        if (ImGui::MenuItem(bufname))
+                            MainWindow_DoHardImageEject(cartslot);
+                        ImGui::SameLine();
+
+                        TCHAR buffilepath[MAX_PATH];
+                        Settings_GetHardFilePath(cartslot, buffilepath);
+                        LPCTSTR lpFileName = GetFileNameFromFilePath(buffilepath);
+                        ImGui::Text("%S", lpFileName);
+                    }
+                    else
+                    {
+                        sprintf(bufname, "  " ICON_FA_HDD " HDD: Select...   ###MenuHardSelect%d", cartslot);
+                        if (ImGui::MenuItem(bufname))
+                            MainWindow_DoHardImageSelect(cartslot);
+                    }
+                }
+                else
+                {
+                    ImGui::TextDisabled("  " ICON_FA_HDD " HDD");
+                }
+            }
+
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Video"))
+        {
+            int viewmode = Settings_GetScreenViewMode();
+            bool checkedRGB = viewmode == 0;
+            ImGui::BeginDisabled(checkedRGB);
+            if (ImGui::MenuItem("RGB Screen", nullptr, &checkedRGB)) MainWindow_DoScreenViewMode(RGBScreen);
+            ImGui::EndDisabled();
+            bool checkedGRB = viewmode == 1;
+            ImGui::BeginDisabled(checkedGRB);
+            if (ImGui::MenuItem("GRB Screen", nullptr, &checkedGRB)) MainWindow_DoScreenViewMode(GRBScreen);
+            ImGui::EndDisabled();
+            bool checkedGray = viewmode == 2;
+            ImGui::BeginDisabled(checkedGray);
+            if (ImGui::MenuItem("Grayscale Screen", nullptr, &checkedGray)) MainWindow_DoScreenViewMode(GrayScreen);
             ImGui::EndDisabled();
 
             ImGui::EndMenu();
@@ -260,7 +360,7 @@ void ImGuiAboutPopup()
 {
     if (ImGui::BeginPopupModal("about_popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("UKNCBTL ImGui version");
+        ImGui::Text("UKNCBTL ImGui version " APP_VERSION_STRING);
         ImGui::TextLinkOpenURL("Source code", "https://github.com/nzeemin/ukncbtl-imgui");
         ImGui::Spacing();
 

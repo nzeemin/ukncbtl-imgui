@@ -144,7 +144,7 @@ void Breakpoints_ImGuiWidget()
 
             if (isDeleteHovered)
             {
-                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), ICON_FA_MINUS_CIRCLE);
+                ImGui::TextColored(g_colorBreak, ICON_FA_MINUS_CIRCLE);
                 ImGui::SameLine();
             }
 

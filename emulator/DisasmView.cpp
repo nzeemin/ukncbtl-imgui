@@ -90,7 +90,7 @@ void Disasm_DrawForRunningEmulator()
 
     int index = 5;
     ImGui::SetCursorPosX(xPosCurrentSign);
-    ImGui::TextColored(ImVec4(0.0f, 0.67f, 0.0f, 1.0f), ICON_FA_PLAY);
+    ImGui::TextColored(g_colorPlay, ICON_FA_PLAY);
     ImGui::SameLine(0.0f, 0.0f);
     ImGui::SetCursorPosX(xPosAddress);
     ImGui::Text("%06o ", address);
@@ -106,7 +106,7 @@ void Disasm_DrawForRunningEmulator()
 
 void DisasmView_DrawJump(ImDrawList* draw_list, ImVec2 lineMin, int delta, float cyLine)
 {
-    ImU32 col = ImGui::ColorConvertFloat4ToU32(ImVec4(0.5f, 0.7f, 1.0f, 0.67f));
+    ImU32 col = ImGui::ColorConvertFloat4ToU32(g_colorJumpLine);
 
     int dist = abs(delta);
     if (dist < 2) dist = 2;
@@ -165,8 +165,8 @@ void Disasm_DrawForStoppedEmulator(CProcessor* pProc)
         if (isBreakpoint || isBreakpointHovered)
         {
             ImVec4 colorBreak = isBreakpoint
-                ? (isBreakpointHovered ? ImVec4(1.0f, 0.0f, 0.0f, 1.0f) : ImVec4(0.67f, 0.0f, 0.0f, 1.0f))
-                : ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
+                ? (isBreakpointHovered ? g_colorDisabledRed : g_colorBreak)
+                : ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled);
             ImGui::TextColored(colorBreak, ICON_FA_CIRCLE);
             ImGui::SameLine(0.0f, 0.0f);
 
@@ -176,13 +176,16 @@ void Disasm_DrawForStoppedEmulator(CProcessor* pProc)
         if (address == proccurrent)
         {
             ImGui::SetCursorPosX(xPosCurrentSign);
-            ImGui::TextColored(ImVec4(0.0f, 0.67f, 0.0f, 1.0f), ICON_FA_PLAY);
+            ImGui::TextColored(g_colorPlay, ICON_FA_PLAY);
             ImGui::SameLine(0.0f, 0.0f);
         }
+
+        int memorytype = m_DisasmAddrType[index];
+        ImVec4 colorAddr = (memorytype == ADDRTYPE_ROM) ? g_colorDisabledBlue : ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled);
         ImGui::SetCursorPosX(xPosAddress);
-        ImGui::Text("%06o ", address);
+        ImGui::TextColored(colorAddr, "%06o ", address);
         ImGui::SameLine();
-        ImGui::Text("%06o ", m_DisasmMemory[index]);
+        ImGui::TextDisabled("%06o ", m_DisasmMemory[index]);
         ImGui::SameLine();
 
         if (address >= disasmfrom && length == 0)
@@ -208,12 +211,12 @@ void Disasm_DrawForStoppedEmulator(CProcessor* pProc)
                 if (*m_strDisasmHint == 0)  // we don't have the jump hint
                 {
                     Disasm_GetInstructionHint(m_DisasmMemory + index, pProc, pMemCtl, m_strDisasmHint, m_strDisasmHint2);
-                    ImGui::Text("%S", m_strDisasmHint);
+                    ImGui::TextDisabled("%S", m_strDisasmHint);
                     ImGui::SameLine(0.0f, 0.0f);
                 }
                 else  // we have jump hint
                 {
-                    ImVec4 color = m_okDisasmJumpPredict ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+                    ImVec4 color = m_okDisasmJumpPredict ? g_colorDisabledGreen : g_colorDisabledRed;
                     ImGui::TextColored(color, "%S", m_strDisasmHint);
                     ImGui::SameLine(0.0f, 0.0f);
                 }
@@ -221,7 +224,7 @@ void Disasm_DrawForStoppedEmulator(CProcessor* pProc)
             if (address == proccurrent + 2 && *m_strDisasmHint2 != 0)
             {
                 ImGui::SetCursorPosX(xPosHints);
-                ImGui::Text("%S", m_strDisasmHint2);
+                ImGui::TextDisabled("%S", m_strDisasmHint2);
                 ImGui::SameLine(0.0f, 0.0f);
             }
         }
