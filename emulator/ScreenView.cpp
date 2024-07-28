@@ -70,9 +70,41 @@ void ScreenView_ImGuiWidget()
 
     ImVec2 vMin = ImGui::GetWindowContentRegionMin();
     ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-    ImVec2 size(vMax.x - vMin.x, vMax.y - vMin.y);
-    //TODO: Calculate size for selected view mode
-    //ImVec2 size(640.0f, 480.0f);
+
+    int sizemode = Settings_GetScreenSizeMode();
+    ImVec2 size;
+    switch (sizemode)
+    {
+    default:  // Fill the box
+        size = ImVec2(vMax.x - vMin.x, vMax.y - vMin.y);
+        break;
+    case ScreenSize4to3ratio:
+        if ((vMax.x - vMin.x) / 4.0f <= (vMax.y - vMin.y) / 3.0f)
+        {
+            size.x = vMax.x - vMin.x;
+            size.y = size.x / 4.0f * 3.0f;
+        }
+        {
+            size.y = vMax.y - vMin.y;
+            size.x = size.y / 3.0f * 4.0f;
+        }
+        break;
+    case ScreenSize640x480:
+        size = ImVec2(640.0f, 480.0f);
+        break;
+    case ScreenSize800x600:
+        size = ImVec2(800.0f, 600.0f);
+        break;
+    case ScreenSize960x720:
+        size = ImVec2(960.0f, 720.0f);
+        break;
+    case ScreenSize1280x960:
+        size = ImVec2(1280.0f, 960.0f);
+        break;
+    case ScreenSize1600x1200:
+        size = ImVec2(1600.0f, 1200.0f);
+        break;
+    }
 
     ImGui::Image(g_ScreenTextureID, size);
 

@@ -399,8 +399,10 @@ int main(int, char**)
                     nFrameDelay = 1000ll / 25 * 4 - 3;
                 else if (Settings_GetRealSpeed() == 0x7fff)  // Speed 50%
                     nFrameDelay = 1000ll / 25 * 2 - 3;
-                else if (Settings_GetRealSpeed() == 2)  // Speed 200%
-                    nFrameDelay = 1000ll / 25 / 2 - 4;
+                else if (Settings_GetRealSpeed() == 2)  // Speed 120%
+                    nFrameDelay = 1000ll / 30 - 3;
+                else if (Settings_GetRealSpeed() == 3)  // Speed 240%
+                    nFrameDelay = 1000ll / 30 / 2 - 2;
 
                 for (;;)
                 {

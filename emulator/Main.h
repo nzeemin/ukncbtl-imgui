@@ -93,6 +93,8 @@ void Settings_SetHardFilePath(int slot, LPCTSTR sFilePath);
 void Settings_GetHardFilePath(int slot, LPTSTR buffer);
 void Settings_SetScreenViewMode(int mode);
 int  Settings_GetScreenViewMode();
+void Settings_SetScreenSizeMode(int mode);
+int  Settings_GetScreenSizeMode();
 BOOL Settings_GetScreenVsync();
 void Settings_SetScreenVsync(BOOL flag);
 void Settings_SetScreenshotMode(int mode);
@@ -185,6 +187,17 @@ enum ScreenViewMode
     RGBScreen = 0,
     GRBScreen = 1,
     GrayScreen = 2,
+};
+
+enum ScreenSizeMode
+{
+    ScreenSizeFill = 0,
+    ScreenSize4to3ratio = 1,
+    ScreenSize640x480 = 2,
+    ScreenSize800x600 = 3,
+    ScreenSize960x720 = 4,
+    ScreenSize1280x960 = 5,
+    ScreenSize1600x1200 = 6,
 };
 
 void ScreenView_Init();

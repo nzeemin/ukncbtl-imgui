@@ -33,6 +33,7 @@ void ImGuiAboutPopup();
 
 void MainWindow_DoEmulatorSpeed(WORD speed);
 void MainWindow_DoScreenViewMode(ScreenViewMode mode);
+void MainWindow_DoScreenSizeMode(ScreenSizeMode mode);
 void MainWindow_DoFloppyImageSelect(int slot);
 void MainWindow_DoFloppyImageEject(int slot);
 void MainWindow_DoCartridgeSelect(int slot);
@@ -113,11 +114,11 @@ void ImGuiMainMenu()
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Screenshot"))
+            if (ImGui::MenuItem(ICON_FA_CAMERA " Screenshot"))
                 MainWindow_DoFileScreenshot();
 
             ImGui::Separator();
-            if (ImGui::MenuItem("Settings"))
+            if (ImGui::MenuItem(ICON_FA_COG " Settings"))
                 open_settings_popup = true;
 
             //ImGui::MenuItem("Quit");//TODO
@@ -165,9 +166,13 @@ void ImGuiMainMenu()
             ImGui::BeginDisabled(checked100);
             if (ImGui::MenuItem("Speed 100%", nullptr, &checked100)) MainWindow_DoEmulatorSpeed(1);
             ImGui::EndDisabled();
-            bool checked200 = speed == 2;
-            ImGui::BeginDisabled(checked200);
-            if (ImGui::MenuItem("Speed 200%", nullptr, &checked200)) MainWindow_DoEmulatorSpeed(2);
+            bool checked120 = speed == 2;
+            ImGui::BeginDisabled(checked120);
+            if (ImGui::MenuItem("Speed 200%", nullptr, &checked120)) MainWindow_DoEmulatorSpeed(2);
+            ImGui::EndDisabled();
+            bool checked240 = speed == 3;
+            ImGui::BeginDisabled(checked240);
+            if (ImGui::MenuItem("Speed 200%", nullptr, &checked240)) MainWindow_DoEmulatorSpeed(3);
             ImGui::EndDisabled();
             bool checkedMax = speed == 0;
             ImGui::BeginDisabled(checkedMax);
@@ -269,6 +274,37 @@ void ImGuiMainMenu()
             if (ImGui::MenuItem("Grayscale Screen", nullptr, &checkedGray)) MainWindow_DoScreenViewMode(GrayScreen);
             ImGui::EndDisabled();
 
+            ImGui::Separator();
+            int sizemode = Settings_GetScreenSizeMode();
+            bool checked0 = sizemode == 0;
+            ImGui::BeginDisabled(checked0);
+            if (ImGui::MenuItem("Fill the box", nullptr, &checked0)) MainWindow_DoScreenSizeMode(ScreenSizeFill);
+            ImGui::EndDisabled();
+            bool checked1 = sizemode == 1;
+            ImGui::BeginDisabled(checked1);
+            if (ImGui::MenuItem("Maintain 4:3 ratio", nullptr, &checked1)) MainWindow_DoScreenSizeMode(ScreenSize4to3ratio);
+            ImGui::EndDisabled();
+            bool checked2 = sizemode == 2;
+            ImGui::BeginDisabled(checked2);
+            if (ImGui::MenuItem("640 x 480", nullptr, &checked2)) MainWindow_DoScreenSizeMode(ScreenSize640x480);
+            ImGui::EndDisabled();
+            bool checked3 = sizemode == 3;
+            ImGui::BeginDisabled(checked3);
+            if (ImGui::MenuItem("800 x 600", nullptr, &checked3)) MainWindow_DoScreenSizeMode(ScreenSize800x600);
+            ImGui::EndDisabled();
+            bool checked4 = sizemode == 4;
+            ImGui::BeginDisabled(checked4);
+            if (ImGui::MenuItem("960 x 720", nullptr, &checked4)) MainWindow_DoScreenSizeMode(ScreenSize960x720);
+            ImGui::EndDisabled();
+            bool checked5 = sizemode == 5;
+            ImGui::BeginDisabled(checked5);
+            if (ImGui::MenuItem("1280 x 960", nullptr, &checked5)) MainWindow_DoScreenSizeMode(ScreenSize1280x960);
+            ImGui::EndDisabled();
+            bool checked6 = sizemode == 6;
+            ImGui::BeginDisabled(checked6);
+            if (ImGui::MenuItem("1600 x 1200", nullptr, &checked6)) MainWindow_DoScreenSizeMode(ScreenSize1600x1200);
+            ImGui::EndDisabled();
+
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Debug"))
@@ -360,11 +396,15 @@ void ImGuiAboutPopup()
 {
     if (ImGui::BeginPopupModal("about_popup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("UKNCBTL ImGui version " APP_VERSION_STRING);
-        ImGui::TextLinkOpenURL("Source code", "https://github.com/nzeemin/ukncbtl-imgui");
+        ImGui::SeparatorText("UKNCBTL ImGui");
+        ImGui::Text("UKNCBTL ImGui version %s revision %d", APP_VERSION_STRING, APP_REVISION);
+        ImGui::Text("Build date: %s %s", __DATE__, __TIME__);
+
+        ImGui::Text("Source code: "); ImGui::SameLine();
+        ImGui::TextLinkOpenURL("github.com/nzeemin/ukncbtl-imgui", "https://github.com/nzeemin/ukncbtl-imgui");
         ImGui::Spacing();
 
-        ImGui::Separator();
+        ImGui::SeparatorText("ImGui");
         ImGui::Text("Dear ImGui version %s %d", IMGUI_VERSION, IMGUI_VERSION_NUM);
         ImGui::Spacing();
 
@@ -430,7 +470,11 @@ void ControlView_ImGuiWidget()
     ImGui::EndDisabled();
     ImGui::SameLine(0.0f, 0.0f);
     ImGui::BeginDisabled(speed == 2);
-    if (ImGui::Button("200")) MainWindow_DoEmulatorSpeed(2);
+    if (ImGui::Button("120")) MainWindow_DoEmulatorSpeed(2);
+    ImGui::EndDisabled();
+    ImGui::SameLine(0.0f, 0.0f);
+    ImGui::BeginDisabled(speed == 3);
+    if (ImGui::Button("240")) MainWindow_DoEmulatorSpeed(3);
     ImGui::EndDisabled();
     ImGui::SameLine(0.0f, 0.0f);
     ImGui::BeginDisabled(speed == 0);
@@ -466,7 +510,7 @@ void ControlView_ImGuiWidget()
     else
         ImGui::Text("%3.f", floor(vMouse.y));
 
-    if (ImGui::Button("Screenshot"))
+    if (ImGui::Button(ICON_FA_CAMERA " Screenshot"))
         MainWindow_DoFileScreenshot();
 
     ImGui::SeparatorText("Floppies");
@@ -576,6 +620,11 @@ void ControlView_ImGuiWidget()
     ImGui::Spacing();
     ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 #endif
+
+    ImGui::Spacing();
+    if (ImGui::Button(ICON_FA_COG " Settings"))
+        open_settings_popup = true;
+
     ImGui::End();
 }
 
@@ -588,6 +637,11 @@ void MainWindow_DoEmulatorSpeed(WORD speed)
 void MainWindow_DoScreenViewMode(ScreenViewMode mode)
 {
     Settings_SetScreenViewMode(mode);
+}
+
+void MainWindow_DoScreenSizeMode(ScreenSizeMode mode)
+{
+    Settings_SetScreenSizeMode(mode);
 }
 
 void MainWindow_DoFloppyImageSelect(int slot)
