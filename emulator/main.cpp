@@ -275,7 +275,7 @@ int main(int, char**)
     // Unbind texture
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    g_ScreenTextureID = (void*)(intptr_t) screen_texture;
+    g_ScreenTextureID = (ImTextureID)(intptr_t) screen_texture;
 
     SetVSync();  // Set initial Vsync flag value
 
