@@ -131,7 +131,7 @@ void MemoryView_ImGuiDraw()
 
     ImVec2 remainingSize = ImGui::GetContentRegionAvail();
     //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 0));
-    ImGui::BeginChild("MemoryScrollPane", remainingSize, ImGuiChildFlags_Border, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::BeginChild("MemoryScrollPane", remainingSize, ImGuiChildFlags_Borders, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     ImVec2 spaceSize = ImGui::CalcTextSize(" ");
     float space = spaceSize.x;
