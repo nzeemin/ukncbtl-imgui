@@ -128,6 +128,7 @@ void ImGuiFrame()
         ImGui::DockBuilderDockWindow("Breakpoints", dockid_right_up2);
         ImGui::DockBuilderDockWindow("Memory Schema", dockid_right_up2);
         ImGui::DockBuilderDockWindow("Disasm", dockid_right);
+        ImGui::DockBuilderDockWindow("Instr History", dockid_right);
         ImGui::DockBuilderDockWindow("Memory", dockid_right_down);
     }
 
@@ -143,6 +144,7 @@ void ImGuiFrame()
     MemorySchema_ImGuiWidget();
     DisasmView_ImGuiWidget();
     MemoryView_ImGuiWidget();
+    HistoryView_ImGuiWidget();
 
     ImGuiMainMenu();
 

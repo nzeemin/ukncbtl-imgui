@@ -73,6 +73,20 @@ void Emulator_PrepareScreenToText(void* pBits, const uint32_t* colors);
 
 bool Emulator_LoadROMCartridge(int slot, LPCTSTR sFilePath);
 
+// Instruction history, recorded always for both CPU and PPU
+const int INSTR_HISTORY_SIZE = 256;  // Must be a power of two
+
+struct InstructionRecord
+{
+    uint16_t pc;
+    uint16_t words[3];  // Opcode and two next words; the instruction is at most 3 words long
+    uint16_t psw;       // Processor status word before the instruction; bit 0400 = HALT mode
+};
+
+int Emulator_GetHistoryLength(bool okCpuPpu);  // okCpuPpu: true = CPU, false = PPU
+const InstructionRecord& Emulator_GetHistoryRecord(bool okCpuPpu, int index);  // index 0 = most recent
+void Emulator_ClearHistory();
+
 void Emulator_SetTrace(uint32_t traceFlags);  // TRACE_xxx bits, see Board.h
 uint32_t Emulator_GetTrace();
 
