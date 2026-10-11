@@ -73,6 +73,9 @@ void Emulator_PrepareScreenToText(void* pBits, const uint32_t* colors);
 
 bool Emulator_LoadROMCartridge(int slot, LPCTSTR sFilePath);
 
+void Emulator_SetTrace(uint32_t traceFlags);  // TRACE_xxx bits, see Board.h
+uint32_t Emulator_GetTrace();
+
 // Update cached values after Run or Step
 void Emulator_OnUpdate();
 uint16_t Emulator_GetChangeRamStatus(int addrtype, uint16_t address);

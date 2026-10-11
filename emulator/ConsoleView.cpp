@@ -270,9 +270,9 @@ void ConsoleView_CmdShowHelp(const ConsoleCommandParams& /*params*/)
     //ConsoleView_Print("  u          Save memory dump to file memdumpXPU.bin")
     //ConsoleView_Print("  udl        Save display list dump to file displaylist.txt")
     //ConsoleView_Print("  fcXXXXXX YYYYYY  Calculate floating number for the two octal words")
-    //ConsoleView_Print("  t          Tracing on/off to trace.log file")
-    //ConsoleView_Print("  tXXXXXX    Set tracing flags")
-    //ConsoleView_Print("  tc         Clear trace.log file")
+    ConsoleView_Print("  t          Tracing on/off to trace.log file; same as t177777 or t0");
+    ConsoleView_Print("  tXXXXXX    Set tracing flags: 400 = CPU, 200 = PPU, 100 = floppy");
+    ConsoleView_Print("  tc         Clear trace.log file");
 }
 
 void ConsoleView_CmdClearConsoleLog(const ConsoleCommandParams& /*params*/)
@@ -376,6 +376,31 @@ void ConsoleView_CmdRemoveBreakpointAtAddress(const ConsoleCommandParams& params
 }
 
 
+void ConsoleView_PrintTraceState()
+{
+    uint32_t flags = Emulator_GetTrace();
+    if (flags == TRACE_NONE)
+        ConsoleView_Print("  Tracing is off.");
+    else
+        ConsoleView_PrintFormat("  Tracing is on, flags %06o, log file trace.log", flags);
+}
+void ConsoleView_CmdTraceLogWithMask(const ConsoleCommandParams& params)
+{
+    Emulator_SetTrace(params.paramOct1);
+    ConsoleView_PrintTraceState();
+}
+void ConsoleView_CmdTraceLogOnOff(const ConsoleCommandParams& /*params*/)
+{
+    Emulator_SetTrace(Emulator_GetTrace() == TRACE_NONE ? TRACE_ALL : TRACE_NONE);
+    ConsoleView_PrintTraceState();
+}
+void ConsoleView_CmdClearTraceLog(const ConsoleCommandParams& /*params*/)
+{
+    DebugLogClear();
+    ConsoleView_Print("  trace.log cleared.");
+}
+
+
 //////////////////////////////////////////////////////////////////////
 
 enum ConsoleCommandArgInfo
@@ -428,9 +453,9 @@ static ConsoleCommands[] =
     { "bc%ho", ARGINFO_OCT, ConsoleView_CmdRemoveBreakpointAtAddress },
     { "bc", ARGINFO_NONE, ConsoleView_CmdRemoveAllBreakpoints },
     //{ "fc%ho %ho", ARGINFO_OCT_OCT, ConsoleView_CmdCalculateFloatNumber },
-    //{ "t%ho", ARGINFO_OCT, ConsoleView_CmdTraceLogWithMask },
-    //{ "t", ARGINFO_NONE, ConsoleView_CmdTraceLogOnOff },
-    //{ "tc", ARGINFO_NONE, ConsoleView_CmdClearTraceLog },
+    { "tc", ARGINFO_NONE, ConsoleView_CmdClearTraceLog },
+    { "t%ho", ARGINFO_OCT, ConsoleView_CmdTraceLogWithMask },
+    { "t", ARGINFO_NONE, ConsoleView_CmdTraceLogOnOff },
 };
 const size_t ConsoleCommandsCount = sizeof(ConsoleCommands) / sizeof(ConsoleCommands[0]);
 

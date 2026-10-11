@@ -69,17 +69,6 @@ BOOL AlertOkCancel(LPCTSTR sMessage)
 //////////////////////////////////////////////////////////////////////
 // DebugPrint and DebugLog
 
-#if defined(PRODUCT)
-
-void DebugPrint(LPCTSTR) {}
-void DebugPrintFormat(LPCTSTR, ...) {}
-void DebugLogClear() {}
-void DebugLogCloseFile() {}
-void DebugLog(LPCTSTR) {}
-void DebugLogFormat(LPCTSTR, ...) {}
-
-#else
-
 void DebugPrint(LPCTSTR message)
 {
     //if (g_hwndConsole == NULL)
@@ -168,8 +157,6 @@ void DebugLogFormat(LPCTSTR pszFormat, ...)
 
     DebugLog(buffer);
 }
-
-#endif // !defined(PRODUCT)
 
 
 //////////////////////////////////////////////////////////////////////

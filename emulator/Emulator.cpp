@@ -163,6 +163,45 @@ bool Emulator_LoadUkncRom()
     return true;
 }
 
+// Called by CPU/PPU before each instruction is executed; installed always, used for tracing
+void CALLBACK Emulator_Instruction_Callback(const CProcessor* pProc, uint16_t address, uint16_t opcode)
+{
+    uint32_t traceFlags = g_pBoard->GetTrace();
+    uint32_t traceMask = (pProc == g_pBoard->GetCPU()) ? TRACE_CPU : TRACE_PPU;
+    if ((traceFlags & traceMask) == 0)
+        return;
+
+    // Instruction is at most 3 words long
+    const CMemoryController* pMemCtl = pProc->GetMemoryControllerConst();
+    bool okHaltMode = pProc->IsHaltMode();
+    uint16_t memory[3];
+    int addrtype = 0;
+    memory[0] = opcode;
+    memory[1] = pMemCtl->GetWordView(address + 1 * 2, okHaltMode, true, &addrtype);
+    memory[2] = pMemCtl->GetWordView(address + 2 * 2, okHaltMode, true, &addrtype);
+
+    TCHAR bufaddr[7];
+    PrintOctalValue(bufaddr, address);
+
+    TCHAR instr[8];
+    TCHAR args[32];
+    DisassembleInstruction(memory, address, instr, args);
+    TCHAR buffer[64];
+    _sntprintf(buffer, sizeof(buffer) / sizeof(TCHAR) - 1, _T("%s\t%s\t%s\t%s\r\n"), pProc->GetName(), bufaddr, instr, args);
+
+    DebugLog(buffer);
+}
+
+void Emulator_SetTrace(uint32_t traceFlags)
+{
+    g_pBoard->SetTrace(traceFlags);
+}
+
+uint32_t Emulator_GetTrace()
+{
+    return g_pBoard->GetTrace();
+}
+
 bool Emulator_Init()
 {
     ASSERT(g_pBoard == nullptr);
@@ -187,6 +226,8 @@ bool Emulator_Init()
     }
 
     g_pBoard->SetNetStation((uint16_t)Settings_GetNetStation());
+
+    g_pBoard->SetInstructionCallback(Emulator_Instruction_Callback);
 
     g_pBoard->Reset();
 
@@ -215,6 +256,9 @@ void Emulator_Done()
     ASSERT(g_pBoard != nullptr);
 
     CProcessor::Done();
+
+    g_pBoard->SetInstructionCallback(nullptr);
+    DebugLogCloseFile();
 
     g_pBoard->SetSoundGenCallback(nullptr);
     SoundGen_Finalize();
