@@ -3,6 +3,7 @@
 #include "imgui/imgui_internal.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
+#include <mmsystem.h>
 
 // Data stored per platform window
 struct WGL_WindowData { HDC hDC; };
@@ -327,6 +328,9 @@ int main(int, char**)
     LARGE_INTEGER nPerformanceFrequency;
     ::QueryPerformanceFrequency(&nPerformanceFrequency);
 
+    // Default timer resolution is ~15.6 ms, so Sleep() in the frame limiter would overshoot a 20 ms frame
+    ::timeBeginPeriod(1);
+
     // Main loop
     bool done = false;
     while (!done)
@@ -394,33 +398,33 @@ int main(int, char**)
                 ::Sleep(0);  // We should not consume 100% of CPU
             else
             {
-                LONGLONG nFrameDelay = 1000ll / 25 - 8;  // 1000 millisec / 25 = 40 millisec
-                if (Settings_GetRealSpeed() == 0x7ffe)  // Speed 25%
-                    nFrameDelay = 1000ll / 25 * 4 - 3;
-                else if (Settings_GetRealSpeed() == 0x7fff)  // Speed 50%
-                    nFrameDelay = 1000ll / 25 * 2 - 3;
-                else if (Settings_GetRealSpeed() == 2)  // Speed 120%
-                    nFrameDelay = 1000ll / 30 - 3;
-                else if (Settings_GetRealSpeed() == 3)  // Speed 240%
-                    nFrameDelay = 1000ll / 30 / 2 - 2;
+                int speedPercent = 100;
+                switch (Settings_GetRealSpeed())
+                {
+                case 0x7ffe: speedPercent = 25; break;
+                case 0x7fff: speedPercent = 50; break;
+                case 2: speedPercent = 120; break;
+                case 3: speedPercent = 240; break;
+                }
+                // Frame duration in performance counter ticks: 1 / (FRAMERATE * speedPercent / 100) seconds
+                const LONGLONG nFrameTicks = nPerformanceFrequency.QuadPart * 100 / (FRAMERATE * speedPercent);
 
                 for (;;)
                 {
-                    LARGE_INTEGER nFrameFinishTime;  // Frame start time
+                    LARGE_INTEGER nFrameFinishTime;
                     ::QueryPerformanceCounter(&nFrameFinishTime);
-                    LONGLONG nTimeElapsed = (nFrameFinishTime.QuadPart - nFrameStartTime.QuadPart)
-                        * 1000ll / nPerformanceFrequency.QuadPart;
-                    if (nTimeElapsed <= 0 || nTimeElapsed >= nFrameDelay)
+                    LONGLONG nTicksRemaining = nFrameTicks - (nFrameFinishTime.QuadPart - nFrameStartTime.QuadPart);
+                    if (nTicksRemaining <= 0)
                         break;
-                    DWORD nDelayRemaining = (DWORD)(nFrameDelay - nTimeElapsed);
-                    if (nDelayRemaining == 1)
-                        ::Sleep(0);
-                    else
-                        ::Sleep(nDelayRemaining / 2);
+                    LONGLONG nMsRemaining = nTicksRemaining * 1000 / nPerformanceFrequency.QuadPart;
+                    if (nMsRemaining >= 2)
+                        ::Sleep((DWORD)(nMsRemaining - 1));  // Sleep() may oversleep by ~1 ms, spin for the rest
                 }
             }
         }
     }
+
+    ::timeEndPeriod(1);
 
     Emulator_Done();
     Settings_Done();

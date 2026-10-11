@@ -53,7 +53,7 @@ FILE* m_fpEmulatorParallelOut = nullptr;
 
 long m_nFrameCount = 0;
 uint32_t m_dwTickCount = 0;
-uint32_t m_dwEmulatorUptime = 0;  // UKNC uptime, seconds, from turn on or reset, increments every 25 frames
+uint32_t m_dwEmulatorUptime = 0;  // UKNC uptime, seconds, from turn on or reset, increments every FRAMERATE frames
 long m_nUptimeFrameCount = 0;
 
 uint8_t* g_pEmulatorRam[3] = { nullptr, nullptr, nullptr };  // RAM values - for change tracking
@@ -758,16 +758,16 @@ bool Emulator_SystemFrame()
     if (nTicksElapsed >= 1000)
     {
         double dFramesPerSecond = m_nFrameCount * 1000.0 / nTicksElapsed;
-        double dSpeed = dFramesPerSecond / 25.0 * 100;
+        double dSpeed = dFramesPerSecond / FRAMERATE * 100;
         g_dFramesPercent = dSpeed;
 
         m_nFrameCount = 0;
         m_dwTickCount = dwCurrentTicks;
     }
 
-    // Calculate emulator uptime (25 frames per second)
+    // Calculate emulator uptime (FRAMERATE frames per second)
     m_nUptimeFrameCount++;
-    if (m_nUptimeFrameCount >= 25)
+    if (m_nUptimeFrameCount >= FRAMERATE)
     {
         m_dwEmulatorUptime++;
         m_nUptimeFrameCount = 0;
@@ -780,9 +780,9 @@ bool Emulator_SystemFrame()
         _sntprintf(buffer, sizeof(buffer) / sizeof(TCHAR) - 1, _T("Uptime: %02d:%02d:%02d"), hours, minutes, seconds);
     }
 
-    // Update "Sound" indicator every 5 frames
+    // Update "Sound" indicator every 1/5 second
     m_nEmulatorSoundChanges += g_pBoard->GetSoundChanges();
-    if (m_nUptimeFrameCount % 5 == 0)
+    if (m_nUptimeFrameCount % (FRAMERATE / 5) == 0)
     {
         bool soundOn = m_nEmulatorSoundChanges > 0;
         m_nEmulatorSoundChanges = 0;
@@ -792,13 +792,13 @@ bool Emulator_SystemFrame()
     if (Option_AutoBoot > 0)
     {
         BYTE digitKeyScan = m_arrDigitKeyScans[Option_AutoBoot];
-        if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == 6)
+        if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == FRAMERATE * 6 / 25)
             ScreenView_KeyEvent(digitKeyScan, TRUE);  // Press the digit key
-        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == 10)
+        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == FRAMERATE * 10 / 25)
             ScreenView_KeyEvent(digitKeyScan, FALSE);  // Release the digit key
-        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == 16)
+        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == FRAMERATE * 16 / 25)
             ScreenView_KeyEvent(0153, TRUE);  // Press "Enter"
-        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == 20)
+        else if (m_dwEmulatorUptime == 2 && m_nUptimeFrameCount == FRAMERATE * 20 / 25)
         {
             ScreenView_KeyEvent(0153, FALSE);  // Release "Enter"
             Option_AutoBoot = 0;  // All done
@@ -810,7 +810,7 @@ bool Emulator_SystemFrame()
 
 float Emulator_GetUptime()
 {
-    return ((float)m_dwEmulatorUptime) + m_nUptimeFrameCount / 25.0f;
+    return ((float)m_dwEmulatorUptime) + m_nUptimeFrameCount / (float)FRAMERATE;
 }
 
 // Update cached values after Run or Step

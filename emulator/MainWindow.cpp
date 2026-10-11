@@ -168,11 +168,11 @@ void ImGuiMainMenu()
             ImGui::EndDisabled();
             bool checked120 = speed == 2;
             ImGui::BeginDisabled(checked120);
-            if (ImGui::MenuItem("Speed 200%", nullptr, &checked120)) MainWindow_DoEmulatorSpeed(2);
+            if (ImGui::MenuItem("Speed 120%", nullptr, &checked120)) MainWindow_DoEmulatorSpeed(2);
             ImGui::EndDisabled();
             bool checked240 = speed == 3;
             ImGui::BeginDisabled(checked240);
-            if (ImGui::MenuItem("Speed 200%", nullptr, &checked240)) MainWindow_DoEmulatorSpeed(3);
+            if (ImGui::MenuItem("Speed 240%", nullptr, &checked240)) MainWindow_DoEmulatorSpeed(3);
             ImGui::EndDisabled();
             bool checkedMax = speed == 0;
             ImGui::BeginDisabled(checkedMax);
