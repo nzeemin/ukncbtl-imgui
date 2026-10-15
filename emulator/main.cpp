@@ -144,7 +144,7 @@ void ImGuiFrame()
     MemorySchema_ImGuiWidget();
     DisasmView_ImGuiWidget();
     MemoryView_ImGuiWidget();
-    HistoryView_ImGuiWidget();
+    InstrHistoryView_ImGuiWidget();
 
     ImGuiMainMenu();
 

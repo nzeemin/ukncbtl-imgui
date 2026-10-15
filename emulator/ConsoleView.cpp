@@ -271,7 +271,8 @@ void ConsoleView_CmdShowHelp(const ConsoleCommandParams& /*params*/)
     //ConsoleView_Print("  udl        Save display list dump to file displaylist.txt")
     //ConsoleView_Print("  fcXXXXXX YYYYYY  Calculate floating number for the two octal words")
     ConsoleView_Print("  t          Tracing on/off to trace.log file; same as t177777 or t0");
-    ConsoleView_Print("  tXXXXXX    Set tracing flags: 400 = CPU, 200 = PPU, 100 = floppy");
+    ConsoleView_Print("  tXXXXXX    Set tracing flags: 400 = CPU, 200 = PPU, 100 = floppy,");
+    ConsoleView_Print("             2000 = CPU interrupts, 1000 = PPU interrupts");
     ConsoleView_Print("  tc         Clear trace.log file");
 }
 

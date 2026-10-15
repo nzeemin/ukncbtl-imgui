@@ -219,8 +219,8 @@ void MemorySchema_ImGuiWidget();
 // DisasmView
 void DisasmView_ImGuiWidget();
 
-// HistoryView
-void HistoryView_ImGuiWidget();
+// InstrHistoryView
+void InstrHistoryView_ImGuiWidget();
 
 // ConsoleView
 void ConsoleView_Init();

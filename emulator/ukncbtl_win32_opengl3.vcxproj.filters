@@ -43,7 +43,7 @@
     <ClCompile Include="DisasmView.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="HistoryView.cpp">
+    <ClCompile Include="InstrHistoryView.cpp">
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="emubase\Board.cpp">
